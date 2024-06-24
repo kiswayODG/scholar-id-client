@@ -15,6 +15,7 @@ import { apiClient } from "app-api/api";
 import { EtablissementInterface } from "../model/EtablissementInterface";
 import { useEffect, useState } from "react";
 import { NiveauEtudeInterface } from "../model/NiveauInterface";
+import { toast } from "react-toastify";
 
 interface viewFormI {
   id?: number;
@@ -26,49 +27,40 @@ interface viewFormI {
 interface viewProp {
   classe?: ClasseInterface;
   onClose: ()=>void;
+  reload?: ()=> void;
 }
 
 interface viewStateI {
   etablissement:EtablissementInterface,
+  niveauList: NiveauEtudeInterface[],
 }
 
-const AddUpdateClasse: React.FC<viewProp> = ({ classe, onClose }) => {
+const AddUpdateClasse: React.FC<viewProp> = ({ classe, onClose,reload }) => {
 
   const [state, setState]= useState<viewStateI>({
     etablissement: {} as EtablissementInterface,
+    niveauList : []
   })
-  const validateSchema = Yup.object().shape({
-    libelleClasse: Yup.string().required("veuillez renseigner le libelle !"),
-    code: Yup.string().required("veuillez renseigner le code !"),
-    codeClasse: Yup.string()
-      .matches(
-        /^[A-Z]{1,2}[0-9]{3}$/,
-        "Le code de classe doit commencer par un maximum de deux caractères majuscules suivi de trois chiffres.",
-      )
-      .required("Le code de classe est obligatoire."),
-  });
 
-  const getEtablissement = async()=> {
-    
-    const etabresponse = await apiClient.parametrage.fetchActiveEtablissement();
-    setState((prevState)=>({
-      ...prevState,
-      etablissement: etabresponse.data as EtablissementInterface,
-    }))
-
-  }
   const [initialValues, setInitialValues] = useState({
     id: classe?.id || 0,
     libelleClasse: classe?.libelleClasse || "",
-    code: classe?.codeClasse || "",
+    codeClasse: classe?.codeClasse || "",
     niveau: 0,
   })
 
-  const getData = async ()=> {
+  const getData = async()=> {
+    const etabresponse = await apiClient.parametrage.fetchActiveEtablissement();
     const niveauReqResponse = await apiClient.parametrage.fetchNiveaux();
-
-    let firstNiveau = (niveauReqResponse.data as NiveauEtudeInterface[])[0]
+    let firstNiveau = (niveauReqResponse.data as NiveauEtudeInterface[])[0];
+    
     setState((prevState)=>({
+      ...prevState,
+      etablissement: etabresponse.data as EtablissementInterface,
+      niveauList : niveauReqResponse.data as NiveauEtudeInterface[],
+    }))
+
+    setInitialValues((prevState)=>({
       ...prevState,
       niveau: classe?.niveauEtude.id || firstNiveau.id,
     }))
@@ -76,16 +68,50 @@ const AddUpdateClasse: React.FC<viewProp> = ({ classe, onClose }) => {
 
   useEffect(()=> {
     getData()
-  }
-  )
+  },[])
+
+  const validateSchema = Yup.object().shape({
+    libelleClasse: Yup.string().required("veuillez renseigner le libelle !"),
+    codeClasse: Yup.string()
+      .matches(
+        /^[A-Z]{1,2}[0-9]{3}$/,
+        "Deux caractères majuscules suivi de trois chiffres.",
+      )
+      .required("Le code de classe est obligatoire."),
+  });
+
+
+
 
   const formik = useFormik({
     initialValues,
+    enableReinitialize: true,
     validationSchema: validateSchema,
     onSubmit(values, formikHelpers) {
-      alert("on a valider");
+      let classToSave: ClasseInterface = {
+        codeClasse: values.codeClasse,
+        id: values.id,
+        libelleClasse: values.libelleClasse,
+        niveauEtude: state.niveauList.filter((item)=>item.id==values.niveau)[0]
+      }
+      
+      let result = classToSave.id !==0? "Mise à jour réussie !": "Classe créee avec succès!"
+      let error =  classToSave.id !==0? "Échec mise à jour de la classe !": "Échec de la création de la classe!"
+      toast.promise(apiClient.parametrage.createUpdateClasse(classToSave).then(
+        (res)=>{
+          if(reload) reload()
+          onClose();
+        }
+      ), {
+        pending: "En traitement ...",
+        success: result,
+        error: error,
+      });
+
     },
   });
+
+
   return (
     <>
     
@@ -101,22 +127,21 @@ const AddUpdateClasse: React.FC<viewProp> = ({ classe, onClose }) => {
             />
             <Controls.SelectComponent
               name="niveau"
-              onChange={formik.handleChange}
-              options={[
-                { libelle: "Lycée1", valeur: "M" },
-                { libelle: "Lycée2", valeur: "F" },
-              ]}
-              renderLabel={(item) => item.libelle}
-              renderValue={(item) => item.valeur}
-              valeur={"M"}
+              onChange={option => formik.setFieldValue("niveau", option)}
+              options={state.niveauList}
+              renderLabel={(item) => item.libelleNiveauEtude}
+              renderValue={(item) => item.id}
+              valeur={formik.values.niveau}
+              width={300}
             />
-
+            
             <Controls.TextFieldComponent
               label="Libelle"
               size="small"
               name="libelleClasse"
               value={formik.values.libelleClasse}
               onChange={formik.handleChange}
+              sx={{width:300}}
               error={
                 formik.touched.libelleClasse &&
                 Boolean(formik.errors.libelleClasse)
@@ -129,11 +154,11 @@ const AddUpdateClasse: React.FC<viewProp> = ({ classe, onClose }) => {
             <Controls.TextFieldComponent
               label="Code"
               size="small"
-              name="code"
-              value={formik.values.code}
+              name="codeClasse"
+              value={formik.values.codeClasse}
               onChange={formik.handleChange}
-              error={formik.touched.code && Boolean(formik.errors.code)}
-              helperText={formik.touched.code && formik.errors.code}
+              error={formik.touched.codeClasse && Boolean(formik.errors.codeClasse)}
+              helperText={formik.touched.codeClasse && formik.errors.codeClasse}
             />
           </Grid>
        

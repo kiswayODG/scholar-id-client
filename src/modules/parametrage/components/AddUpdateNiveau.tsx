@@ -29,7 +29,6 @@ const AddUpdateNiveau: React.FC<viewPropsI> = ({ niveau, onClose, reload }) => {
 
   const [initialValues, setInitialValues] = useState({
     id: niveau?.id || 0,
-    etab:{} as EtablissementInterface,
     libelle: niveau?.libelleNiveauEtude || "",
     code: niveau?.codeNiveauEtude || "",
     cycle: 0,
@@ -50,7 +49,6 @@ const AddUpdateNiveau: React.FC<viewPropsI> = ({ niveau, onClose, reload }) => {
 
     setInitialValues((prevValues) => ({
       ...prevValues,
-      etab: etabresponse.data as EtablissementInterface,
       cycle: niveau?.cycleEtude.id || firstItem.id,
     }));
   };
@@ -76,7 +74,7 @@ const AddUpdateNiveau: React.FC<viewPropsI> = ({ niveau, onClose, reload }) => {
         id: values.id,
         libelleNiveauEtude: values.libelle,
         codeNiveauEtude: values.code,
-        etablissement: niveau?.etablissement || state.etab,
+        etablissement: niveau?.etablissement || state?.etab,
         libelleCourt: values.libelleCourt,
         cycleEtude: state.cyclesList.filter(
           (item) => item.id == values.cycle
@@ -107,7 +105,7 @@ const AddUpdateNiveau: React.FC<viewPropsI> = ({ niveau, onClose, reload }) => {
               name="etab"
               value={
                 niveau?.etablissement.nomEtablissement ||
-                state.etab.nomEtablissement
+                state?.etab.nomEtablissement
               }
               disabled={true}
             />

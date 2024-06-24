@@ -18,7 +18,7 @@ interface viewStateI {
   data : ClasseInterface[],
   filteredData : ClasseInterface[],
   niveauxListe : NiveauEtudeInterface[],
-  currentModel: ClasseInterface,
+  currentModel: ClasseInterface | undefined,
   updaddOp: string,
   loading: boolean,
 }
@@ -51,7 +51,7 @@ const fetchtableData = async()=> {
   const handleAddClasse = () => {
     setState((prevState)=>({
       ...prevState,
-      currentModel: {} as ClasseInterface,
+      currentModel: undefined,
       updaddOp:"Nouvelle classe"
     }))
     addClassModal.toggle();
@@ -155,7 +155,7 @@ const fetchtableData = async()=> {
           onClose={addClassModal.toggle}
           title={state.updaddOp}
         >
-          <AddUpdateClasse  onClose={addClassModal.toggle}/>
+          <AddUpdateClasse reload={fetchtableData} onClose={addClassModal.toggle} classe={state.currentModel}/>
         </FormDialog>
       </Layout>
     </>

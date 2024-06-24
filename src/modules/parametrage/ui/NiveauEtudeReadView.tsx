@@ -10,7 +10,7 @@ import AddUpdateNiveau from "../components/AddUpdateNiveau";
 import FormDialog from "@components/modals/FormDialogComponent";
 import { NiveauEtudeInterface } from "../model/NiveauInterface";
 import { ParametreGlobalInterface } from "../model/ParametreGlobalInterface";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { apiClient } from "app-api/api";
 import { ConstanteParamGlob } from "@utils/Constantes";
 import { TableActions } from "@components/TableAction/TableActions";
@@ -20,8 +20,8 @@ interface viewStateI {
   data: NiveauEtudeInterface[];
   filteredData : NiveauEtudeInterface[];
   cycleList : ParametreGlobalInterface[];
-  addUpdateOpération: string;
-  currentRow: NiveauEtudeInterface;
+  addUpdateOperation: string;
+  currentRow: NiveauEtudeInterface |undefined;
   loading : boolean;
 }
 const NiveauEtudeReadView: React.FC = () => {
@@ -31,9 +31,9 @@ const [state,setState] = useState<viewStateI>({
   data:[],
   filteredData:[],
   cycleList:[],
-  addUpdateOpération: "",
+  addUpdateOperation: "",
   loading: true,
-  currentRow: {} as NiveauEtudeInterface,
+  currentRow: undefined,
 })
 
 const [activeDetail, setDetail] = useState<boolean>(false);
@@ -53,8 +53,8 @@ const [activeDetail, setDetail] = useState<boolean>(false);
   const handleAddNiveau = () => {
     setState((prevState)=>({
       ...prevState,
-      addUpdateOpération:"Nouveau niveau",
-      currentRow: {} as NiveauEtudeInterface,
+      addUpdateOperation:"Nouveau niveau",
+      currentRow: undefined,
     }))
     addUpdateNiveauModal.toggle();
   };
@@ -117,6 +117,10 @@ const [activeDetail, setDetail] = useState<boolean>(false);
     },
   ];
 
+  useEffect(()=>{
+    getData();
+  },[])
+
   return (
     <>
       <Layout>
@@ -143,8 +147,12 @@ const [activeDetail, setDetail] = useState<boolean>(false);
         <FormDialog
           isOpen={addUpdateNiveauModal.isOpen}
           onClose={addUpdateNiveauModal.toggle}
+          title={state.addUpdateOperation}
         >
-          <AddUpdateNiveau onClose={addUpdateNiveauModal.toggle} reload={getData}/>
+          <AddUpdateNiveau onClose={addUpdateNiveauModal.toggle} 
+
+          niveau={state.currentRow}
+           reload={getData}/>
         </FormDialog>
       </Layout>
     </>

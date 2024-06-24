@@ -6,7 +6,7 @@ export const GestionParamEndpoints = {
     deleteUpdateNiveau:"",
     deleteClasse:"",
     createUpdateNiveau:"/param/niveau",
-    createUpdateClasse:"/param/ville",
+    createUpdateClasse:"/param/classe",
     createUpdateParam:"/param/cycle",
     fetchActiveEtablissement:"/param/active-etablissement",
     createEtab:"/param/create-upd-etab"

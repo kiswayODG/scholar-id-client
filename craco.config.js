@@ -4,12 +4,23 @@ module.exports = {
     webpack: {
         alias : {
             '@modules' : path.resolve(__dirname,'./src/modules'),
-            '@config' : path.resolve(__dirname,'./src/config'),
+            '@appConfigs' : path.resolve(__dirname,'./src/appConfigs'),
             '@components' : path.resolve(__dirname,'./src/components'),
-            '@utils' : path.resolve(__dirname,'./src/utils'),
+            '@utils' : path.resolve(__dirname,'./src/utilities'),
             '@hooks' : path.resolve(__dirname,'./src/hooks'),
 
-
-        }
-    }
+        }, plugins: {
+            add: [
+              /* ... */
+            ],
+            remove: [
+              /* ... */
+            ],
+          },
+          configure: (webpackConfig, { env, paths }) => {
+            /* ... */
+            return webpackConfig;
+          },
+        },
+    
 }

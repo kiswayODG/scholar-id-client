@@ -1,0 +1,71 @@
+.box-TableWrapper .MuiDataGrid-root {
+    border: none !important;
+  }
+  
+  .box-TableWrapper .MuiDataGrid-cell {
+    border-bottom: none !important;
+    font-size:20px !important;
+  }
+  
+  .box-TableWrapper .MuiDataGrid-footerContainer {
+    border-top: none !important;
+  }
+  
+  .box-TableWrapper .MuiDataGrid-footerCell {
+    height: 13px !important;
+    color:white !important;
+  }
+  
+  .dataTable{
+  
+    .dataGrid{
+        max-height:100vh !important;
+        width: 100%,!important;
+        transition: width 0.3s ease-in-out !important;
+        padding: 10px !important;
+    
+        .MuiDataGrid-root {
+          border: none !important;
+        }
+  
+        .MuiDataGrid-toolbarContainer{
+          flex-direction: row-reverse !important;
+        }
+     
+        .MuiDataGrid-row:nth-child(even) {
+          background-color: #f2f2f2; // Couleur de fond pour lignes paires
+        }
+    
+        .MuiDataGrid-row:nth-child(odd) {
+          background-color: #ffffff; // Couleur de fond pour lignes impaires
+        }
+  
+        .MuiDataGrid-row:hover {
+          background-color: #e0e0e0;
+        }
+  
+        .MuiDataGrid-cell {
+          border-bottom: none !important;
+          font-size:13px !important;
+        }
+  
+        .action{
+          display: flex;
+          gap: 15px;
+    
+        }
+      }
+    }
+  
+  
+  
+    .toolBar-container {
+      margin-bottom: 5px !important;
+    }
+  
+    .table-filter {
+      width:180px !important;
+      border: none !important;
+    }
+  
+    

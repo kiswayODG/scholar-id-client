@@ -1,0 +1,30 @@
+.paper-wrapper {
+  margin: auto !important;
+  width: 400px !important;
+  flex-grow: 1;
+  height: auto;
+  padding: 15px !important;
+  text-align: center !important;
+  padding: 2px;
+}
+
+.grid-container {
+  margin-left: 15px !important;
+}
+
+.msg-box {
+  width: 150px !important;
+}
+
+.footer {
+  display: flex !important;
+  justify-content: flex-end !important;
+  gap: 10px !important;
+  margin-right: 5px !important;
+  position: relative !important;
+  top: 40px !important;
+}
+
+.title {
+  font-size: x-large;
+}

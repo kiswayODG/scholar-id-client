@@ -11,6 +11,8 @@ import PersonAdd from '@mui/icons-material/PersonAdd';
 import Settings from '@mui/icons-material/Settings';
 import Logout from '@mui/icons-material/Logout';
 import { useState } from 'react';
+import { Navigation } from 'appConfigs/Navigation';
+import { Link } from 'react-router-dom';
 
 export  const AccountMenu : React.FC=()=> {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -79,7 +81,7 @@ export  const AccountMenu : React.FC=()=> {
         <MenuItem >
           <Avatar /> My account
         </MenuItem>
-        {/* <Divider />
+         <Divider />
         <MenuItem >
           <ListItemIcon>
             <PersonAdd fontSize="small" />
@@ -92,12 +94,14 @@ export  const AccountMenu : React.FC=()=> {
           </ListItemIcon>
           Settings
         </MenuItem>
-        <MenuItem >
+        <MenuItem>
+          <Link to={Navigation.LOGIN}>
           <ListItemIcon>
             <Logout fontSize="small" />
           </ListItemIcon>
           Logout
-        </MenuItem> */}
+          </Link>
+        </MenuItem> 
       </Menu>
     </React.Fragment>
   );

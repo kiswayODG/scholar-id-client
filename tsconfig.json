@@ -16,20 +16,19 @@
     "module": "esnext",
     "moduleResolution": "node",
     "resolveJsonModule": true,
-    "isolatedModules": true,
+    "isolatedModules": false,
     "noEmit": true,
     "jsx": "react-jsx",
-    "baseUrl": "./src",
+    "baseUrl": "src",
     "paths": {
-      "@components/*": ["./components/*"],
-      "@modules/*" : ["./modules/*"],
-      "@utlis/*" : ["./utils/*"],
-      "@config" : ["./config/*"],
-      "@hooks" : ["./hooks/*"]
+      "@components/*": ["components/*"],
+      "@modules/*" : ["modules/*"],
+      "@utils/*" : ["utilities/*"],
+      "@appConfigs/*" : ["appConfigs/*"],
+      "@hooks/*" : ["hooks/*"]
 
     }
   },
-  "include": [
-    "src"
-  ]
+  "include": ["src"]
+
 }

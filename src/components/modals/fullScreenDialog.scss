@@ -1,0 +1,24 @@
+
+
+.appBar {
+    position: relative !important;
+    display: flex !important;
+    flex-direction: row !important;
+    justify-content: space-between !important;
+    align-items: center;
+}
+
+
+.textWrapper{
+    margin-left: 2px !important;
+     display: flex !important;
+}
+
+.button-box {
+    margin-bottom: 15px !important;
+}
+
+.cancel-btn-screen{
+ border-radius: 50px;
+ margin-right:"20px",
+}

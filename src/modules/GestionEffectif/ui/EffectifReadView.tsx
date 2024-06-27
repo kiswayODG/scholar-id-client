@@ -12,11 +12,16 @@ import { apiClient } from "app-api/api";
 import useModal from "../../../hooks/useModal";
 import FormDialog from "@components/modals/FormDialogComponent";
 import AddUpdateEtudiant from "../components/AddUpdateEtudiant";
+import { TableActions } from "@components/TableAction/TableActions";
+import { HttpStatusCode } from "axios";
+import { toast } from "react-toastify";
+import ConfirmComponent from "@components/modals/ConfirmComponent";
 
 interface viewStateI {
   data: EtudiantInterface[];
   filteredData: EtudiantInterface[];
   classe: ClasseInterface[];
+  rowToDelete: EtudiantInterface | undefined;
 }
 
 const EffectifReadView: React.FC = () => {
@@ -24,6 +29,7 @@ const EffectifReadView: React.FC = () => {
     data: [],
     filteredData: [],
     classe: [],
+    rowToDelete: undefined,
   });
 
   const addUpdateStudentModal = useModal();
@@ -45,7 +51,7 @@ const EffectifReadView: React.FC = () => {
 
   useEffect(() => {
     fetchEtudiantData();
-  },[]);
+  }, []);
 
   const handleAddUpdateEtudiant = () => {
     addUpdateStudentModal.toggle();
@@ -91,6 +97,37 @@ const EffectifReadView: React.FC = () => {
     );
   };
 
+  const handleUpdateStudent = (etudiant: EtudiantInterface) => {};
+
+  const confirmDeleteModal = useModal();
+
+  const handleWarningDelete = (model: EtudiantInterface) => {
+    confirmDeleteModal.toggle();
+    setState((prevState) => ({
+      ...prevState,
+      rowToDelete: model,
+    }));
+  };
+
+  const deleteConfirmedAction = async (model: EtudiantInterface) => {
+    model.deleteFlag = "O";
+    await apiClient.effectifs
+      .deleteEtudiant(model)
+      .then((r) => {
+        if (r.status == HttpStatusCode.Ok) {
+          toast.success("Etudiant supprimé avec succès !");
+          fetchEtudiantData();
+        }
+        if (r.status == HttpStatusCode.Conflict)
+          toast.warning(
+            "Ce niveau contient des classes, suppression impossible !"
+          );
+      })
+      .catch((error) => {
+        toast.error("Erreur lors de la suppession!");
+      });
+  };
+
   const column: GridColDef<EtudiantInterface>[] = [
     {
       field: "matricule",
@@ -117,20 +154,28 @@ const EffectifReadView: React.FC = () => {
       valueGetter: (params) => params.row.classe.libelleClasse,
     },
     {
-      field: "pere",
-      headerName: "Père",
-      valueGetter: (params) =>
-        params.row.parent?.nom + " " + params.row.parent?.prenom,
+      field: "telephone",
+      headerName: "Tel. urgence",
     },
     {
-      field: "pere",
-      headerName: "Mère",
-      valueGetter: (params) =>
-        params.row.parentbis?.nom + " " + params.row.parentbis?.prenom,
+      field: "adresse",
+      headerName: "Adresse",
     },
     {
-      field: "telUrgence",
-      headerName: "Contact parent",
+      field: "actions",
+      headerName: "Action(s)",
+      type: "actions",
+      width: 170,
+      getActions: (params) => [
+        <TableActions.detailAction onAction={() => {}} />,
+        <TableActions.updateAction
+          onAction={() => handleUpdateStudent(params.row)}
+        />,
+        <TableActions.printRowCardAction onAction={() => {}} />,
+        <TableActions.deleteAction
+          onAction={() => handleWarningDelete(params.row)}
+        />,
+      ],
     },
   ];
 
@@ -150,6 +195,13 @@ const EffectifReadView: React.FC = () => {
         >
           <AddUpdateEtudiant onClose={addUpdateStudentModal.toggle} />
         </FormDialog>
+        <ConfirmComponent
+          isOpen={confirmDeleteModal.isOpen}
+          title={"Attention!!!"}
+          onClose={confirmDeleteModal.toggle}
+          message="Etes vous certain de procéder à la supression ?"
+          onAction={() => deleteConfirmedAction(state.rowToDelete!)}
+        />
       </Layout>
     </>
   );

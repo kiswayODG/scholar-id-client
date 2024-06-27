@@ -3,4 +3,9 @@ import { EtudiantInterface } from "../model/EtudiantInterface";
 
 export interface GestionEffectifApiInterface {
     fetchAllEtudiant : ()=>Promise<ApiResponseInterface<EtudiantInterface[]>>
+    fetchnouveauMatricule : ()=>Promise<ApiResponseInterface<number>>
+    createOrUpdateStudent : (etudiant: EtudiantInterface)=>Promise<ApiResponseInterface<Boolean>>;
+    deleteEtudiant : (etudiant: EtudiantInterface)=>Promise<ApiResponseInterface<Boolean>>;
+
+
 }

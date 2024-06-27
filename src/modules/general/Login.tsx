@@ -30,10 +30,10 @@ function Copyright(props: any) {
       align="center"
       {...props}
     >
-      {"Copyright © "}
-      <Link color="inherit" href="https://mui.com/">
+      {"Tout droit reservé - Propriété intellectuelle © "}
+      {/* <Link color="inherit" href="https://mui.com/">
         TiqKis
-      </Link>{" "}
+      </Link>{" "} */}
       {new Date().getFullYear()}
       {"."}
     </Typography>

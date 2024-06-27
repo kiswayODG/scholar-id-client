@@ -13,12 +13,16 @@ import { useEffect, useState } from "react";
 import { apiClient } from "app-api/api";
 import { Constante, ConstanteParamGlob } from "@utils/Constantes";
 import { TableActions } from "@components/TableAction/TableActions";
+import { HttpStatusCode } from "axios";
+import { toast } from "react-toastify";
+import ConfirmComponent from "@components/modals/ConfirmComponent";
 
 interface viewStateI {
   data: ParametreGlobalInterface[];
   filteredData: ParametreGlobalInterface[];
   addUpdateOperation: string;
   currentCycle: ParametreGlobalInterface;
+  rowToDelete : ParametreGlobalInterface | undefined;
   loading: boolean;
 }
 
@@ -26,6 +30,7 @@ const CycleEtudeReadView: React.FC = () => {
   const [state, setState] = useState<viewStateI>({
     data: [],
     filteredData: [],
+    rowToDelete: undefined,
     loading: true,
     addUpdateOperation: "",
     currentCycle: {} as ParametreGlobalInterface,
@@ -73,6 +78,34 @@ const CycleEtudeReadView: React.FC = () => {
     );
   };
 
+  const confirmDeleteModal = useModal();
+
+  const handleWarningDelete = (model: ParametreGlobalInterface) => {
+    confirmDeleteModal.toggle();
+    setState((prevState) => ({
+      ...prevState,
+      rowToDelete: model,
+    }));
+  };
+
+
+  const deleteConfirmedAction = async (model: ParametreGlobalInterface) => {
+    await apiClient.parametrage
+      .deleteParamGlobal(model.id)
+      .then((r) => {
+        if(r.status==HttpStatusCode.Ok) {
+        toast.success("Niveau supprimé avec succès !");
+        fetchData();
+      }
+      if(r.status==HttpStatusCode.Conflict)
+        toast.warning("Ce cycle contient des niveau, suppression impossible !");
+      })
+      .catch((error) => {
+      
+        toast.error("Erreur lors de la suppession!");
+      });
+  };
+
   const column: GridColDef<ParametreGlobalInterface>[] = [
     {
       field: "id",
@@ -99,7 +132,7 @@ const CycleEtudeReadView: React.FC = () => {
       getActions: (params) => [
         <TableActions.detailAction onAction={() => {}} />,
         <TableActions.updateAction onAction={()=>handleUpdateCycle(params.row)} />,
-        <TableActions.deleteAction onAction={() => {}} />,
+        <TableActions.deleteAction onAction={() => handleWarningDelete(params.row)} />,
        
       ],
     },
@@ -148,6 +181,14 @@ const CycleEtudeReadView: React.FC = () => {
             cycle={state.currentCycle}
           />
         </FormDialog>
+
+        <ConfirmComponent
+          isOpen={confirmDeleteModal.isOpen}
+          title={"Attention!!!"}
+          onClose={confirmDeleteModal.toggle}
+          message="Etes vous certain de procéder à la supression ?"
+          onAction={() => deleteConfirmedAction(state.rowToDelete!)}
+        />
       </Layout>
     </>
   );

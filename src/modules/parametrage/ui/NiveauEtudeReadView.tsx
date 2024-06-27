@@ -14,60 +14,66 @@ import { useEffect, useState } from "react";
 import { apiClient } from "app-api/api";
 import { ConstanteParamGlob } from "@utils/Constantes";
 import { TableActions } from "@components/TableAction/TableActions";
-
+import ConfirmComponent from "@components/modals/ConfirmComponent";
+import { toast } from "react-toastify";
+import { HttpStatusCode } from "axios";
 
 interface viewStateI {
   data: NiveauEtudeInterface[];
-  filteredData : NiveauEtudeInterface[];
-  cycleList : ParametreGlobalInterface[];
+  filteredData: NiveauEtudeInterface[];
+  cycleList: ParametreGlobalInterface[];
   addUpdateOperation: string;
-  currentRow: NiveauEtudeInterface |undefined;
-  loading : boolean;
+  currentRow: NiveauEtudeInterface | undefined;
+  rowToDelete: NiveauEtudeInterface | undefined;
+  loading: boolean;
 }
 const NiveauEtudeReadView: React.FC = () => {
   const addUpdateNiveauModal = useModal();
 
-const [state,setState] = useState<viewStateI>({
-  data:[],
-  filteredData:[],
-  cycleList:[],
-  addUpdateOperation: "",
-  loading: true,
-  currentRow: undefined,
-})
+  const [state, setState] = useState<viewStateI>({
+    data: [],
+    filteredData: [],
+    cycleList: [],
+    addUpdateOperation: "",
+    loading: true,
+    currentRow: undefined,
+    rowToDelete: undefined,
+  });
 
-const [activeDetail, setDetail] = useState<boolean>(false);
+  const [activeDetail, setDetail] = useState<boolean>(false);
 
-  const getData = async ()=> {
+  const getData = async () => {
     const niveauReqResponse = await apiClient.parametrage.fetchNiveaux();
-    const cycleReqResponse = await apiClient.parametrage.fetchParamByCode(ConstanteParamGlob.PARAMG_CYCLE_ETUDE);
+    const cycleReqResponse = await apiClient.parametrage.fetchParamByCode(
+      ConstanteParamGlob.PARAMG_CYCLE_ETUDE
+    );
 
-    setState((prevState)=>({
+    setState((prevState) => ({
       ...prevState,
       cycleList: cycleReqResponse.data as ParametreGlobalInterface[],
       data: niveauReqResponse.data as NiveauEtudeInterface[],
-      filteredData:  niveauReqResponse.data as NiveauEtudeInterface[],
-      loading:false
-    }))
-  }
+      filteredData: niveauReqResponse.data as NiveauEtudeInterface[],
+      loading: false,
+    }));
+  };
   const handleAddNiveau = () => {
-    setState((prevState)=>({
+    setState((prevState) => ({
       ...prevState,
-      addUpdateOperation:"Nouveau niveau",
+      addUpdateOperation: "Nouveau niveau",
       currentRow: undefined,
-    }))
+    }));
     addUpdateNiveauModal.toggle();
   };
 
   const handleUpdateNiveau = (model: NiveauEtudeInterface) => {
-    setState((prevState)=>({
+    setState((prevState) => ({
       ...prevState,
-      addUpdateOpération:"Edition niveau",
+      addUpdateOperation: "Edition niveau",
       currentRow: model,
-    }))
+    }));
     addUpdateNiveauModal.toggle();
   };
-  
+
   const filterComponent = () => {
     return (
       <>
@@ -90,6 +96,33 @@ const [activeDetail, setDetail] = useState<boolean>(false);
     );
   };
 
+  const confirmDeleteModal = useModal();
+
+  const handleWarningDelete = (model: NiveauEtudeInterface) => {
+    confirmDeleteModal.toggle();
+    setState((prevState) => ({
+      ...prevState,
+      rowToDelete: model,
+    }));
+  };
+
+  const deleteConfirmedAction = async (model: NiveauEtudeInterface) => {
+    await apiClient.parametrage
+      .deleteNiveau(model.id)
+      .then((r) => {
+        if(r.status==HttpStatusCode.Ok) {
+        toast.success("Niveau supprimé avec succès !");
+        getData();
+      }
+      if(r.status==HttpStatusCode.Conflict)
+        toast.warning("Ce niveau contient des classes, suppression impossible !");
+      })
+      .catch((error) => {
+      
+        toast.error("Erreur lors de la suppession!");
+      });
+  };
+
   const column: GridColDef[] = [
     {
       field: "id",
@@ -110,32 +143,37 @@ const [activeDetail, setDetail] = useState<boolean>(false);
       width: 150,
       getActions: (params) => [
         <TableActions.detailAction onAction={() => {}} />,
-        <TableActions.updateAction onAction={()=>handleUpdateNiveau(params.row)} />,
-        <TableActions.deleteAction onAction={() => {}} />,
-       
+        <TableActions.updateAction
+          onAction={() => handleUpdateNiveau(params.row)}
+        />,
+        <TableActions.deleteAction
+          onAction={() => handleWarningDelete(params.row)}
+        />,
       ],
     },
   ];
 
-  useEffect(()=>{
+  useEffect(() => {
     getData();
-  },[])
+  }, []);
 
   return (
     <>
       <Layout>
         <Grid container spacing={2}>
           <Grid item xs={7.5}>
-          {state.loading ? (
-          <Box className="flex justify-center items-center h-screen">
-            {" "}
-            <CircularProgress />{" "}
-          </Box>
-        ) :  <TableComponent
-              columns={column}
-              rows={state.filteredData}
-              toolBarChildren={filterComponent()}
-            />}
+            {state.loading ? (
+              <Box className="flex justify-center items-center h-screen">
+                {" "}
+                <CircularProgress />{" "}
+              </Box>
+            ) : (
+              <TableComponent
+                columns={column}
+                rows={state.filteredData}
+                toolBarChildren={filterComponent()}
+              />
+            )}
           </Grid>
           <Grid item xs={4}>
             <Paper className="h-5/6 flex items-center justify-center mt-12">
@@ -149,11 +187,20 @@ const [activeDetail, setDetail] = useState<boolean>(false);
           onClose={addUpdateNiveauModal.toggle}
           title={state.addUpdateOperation}
         >
-          <AddUpdateNiveau onClose={addUpdateNiveauModal.toggle} 
-
-          niveau={state.currentRow}
-           reload={getData}/>
+          <AddUpdateNiveau
+            onClose={addUpdateNiveauModal.toggle}
+            niveau={state.currentRow}
+            reload={getData}
+          />
         </FormDialog>
+
+        <ConfirmComponent
+          isOpen={confirmDeleteModal.isOpen}
+          title={"Attention!!!"}
+          onClose={confirmDeleteModal.toggle}
+          message="Etes vous certain de procéder à la supression ?"
+          onAction={() => deleteConfirmedAction(state.rowToDelete!)}
+        />
       </Layout>
     </>
   );

@@ -7,5 +7,7 @@ export interface EtudiantInterface extends PerosnneInterface{
     parent? : PerosnneInterface,
     parentbis? : PerosnneInterface,
     etablissement : EtablissementInterface,
-    classe : ClasseInterface
+    classe : ClasseInterface,
+    imageBase64 :string,
+    deleteFlag?: string,
 }

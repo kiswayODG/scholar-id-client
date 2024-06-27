@@ -13,6 +13,9 @@ import { useEffect, useState } from "react";
 import { apiClient } from "app-api/api";
 import { TableActions } from "@components/TableAction/TableActions";
 import { Box, CircularProgress } from "@mui/material";
+import ConfirmComponent from "@components/modals/ConfirmComponent";
+import { HttpStatusCode } from "axios";
+import { toast } from "react-toastify";
 
 interface viewStateI {
   data : ClasseInterface[],
@@ -20,6 +23,7 @@ interface viewStateI {
   niveauxListe : NiveauEtudeInterface[],
   currentModel: ClasseInterface | undefined,
   updaddOp: string,
+  rowToDelete:  ClasseInterface | undefined,
   loading: boolean,
 }
 
@@ -32,6 +36,7 @@ const ClasseReadView: React.FC = () => {
     currentModel: {} as ClasseInterface,
     updaddOp:"",
     loading: true,
+    rowToDelete : undefined,
   })
 
 const fetchtableData = async()=> {
@@ -99,6 +104,33 @@ const fetchtableData = async()=> {
     addClassModal.toggle();
   }
 
+  const confirmDeleteModal = useModal();
+
+  const handleWarningDelete = (model: ClasseInterface) => {
+    confirmDeleteModal.toggle();
+    setState((prevState) => ({
+      ...prevState,
+      rowToDelete: model,
+    }));
+  };
+
+  const deleteConfirmedAction = async (model: ClasseInterface) => {
+    await apiClient.parametrage
+      .deleteClasse(model.id)
+      .then((r) => {
+        if(r.status==HttpStatusCode.Ok) {
+        toast.success("Niveau supprimé avec succès !");
+        fetchtableData();
+      }
+      if(r.status==HttpStatusCode.Conflict)
+        toast.warning("Ce cycle contient des niveau, suppression impossible !");
+      })
+      .catch((error) => {
+      
+        toast.error("Erreur lors de la suppession!");
+      });
+  };
+
   const column: GridColDef<ClasseInterface>[] = [
     {
       field: "id",
@@ -125,7 +157,7 @@ const fetchtableData = async()=> {
       getActions: (params) => [
         <TableActions.detailAction onAction={() => {}} />,
         <TableActions.updateAction onAction={()=>handleUpdateClasse(params.row)} />,
-        <TableActions.deleteAction onAction={() => {}} />,
+        <TableActions.deleteAction onAction={() => handleWarningDelete(params.row)} />,
        
       ],
     },
@@ -157,6 +189,14 @@ const fetchtableData = async()=> {
         >
           <AddUpdateClasse reload={fetchtableData} onClose={addClassModal.toggle} classe={state.currentModel}/>
         </FormDialog>
+
+        <ConfirmComponent
+          isOpen={confirmDeleteModal.isOpen}
+          title={"Attention!!!"}
+          onClose={confirmDeleteModal.toggle}
+          message="Etes vous certain de procéder à la supression ?"
+          onAction={() => deleteConfirmedAction(state.rowToDelete!)}
+        />
       </Layout>
     </>
   );

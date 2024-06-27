@@ -1,8 +1,9 @@
-import { Button, IconButton } from "@mui/material";
+import { IconButton } from "@mui/material";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import React from "react";
 import { Delete, Info } from "@mui/icons-material";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
+import BadgeIcon from "@mui/icons-material/Badge";
 
 interface buttonInterface {
   toolTip?: string;
@@ -21,6 +22,7 @@ const updateAction: React.FC<buttonInterface> = ({
       disabled={disable}
       sx={{ color: "green" }}
       onClick={onAction}
+      size="small"
     >
       <EditOutlinedIcon />
     </IconButton>
@@ -38,6 +40,7 @@ const deleteAction: React.FC<buttonInterface> = ({
       disabled={disable}
       sx={{ color: "red" }}
       onClick={onAction}
+      size="small"
     >
       <Delete />
     </IconButton>
@@ -55,8 +58,27 @@ const detailAction: React.FC<buttonInterface> = ({
       disabled={disable}
       sx={{ color: "orange" }}
       onClick={onAction}
+      size="small"
     >
       <Info />
+    </IconButton>
+  );
+};
+
+const printRowCardAction: React.FC<buttonInterface> = ({
+  toolTip,
+  disable,
+  onAction,
+}) => {
+  return (
+    <IconButton
+      title={toolTip || "Générer"}
+      disabled={disable}
+      sx={{ color: "royalblue" }}
+      onClick={onAction}
+      size="small"
+    >
+      <BadgeIcon />
     </IconButton>
   );
 };
@@ -72,6 +94,7 @@ const addAction: React.FC<buttonInterface> = ({
       disabled={disable}
       sx={{ color: "green" }}
       onClick={onAction}
+      size="small"
     >
       <AddCircleOutlineIcon />
     </IconButton>
@@ -82,4 +105,5 @@ export const TableActions = {
   updateAction,
   deleteAction,
   detailAction,
+  printRowCardAction
 };

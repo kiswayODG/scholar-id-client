@@ -129,10 +129,9 @@ export class GestionParamApiModel implements GestionParamApiInterface {
 
     deleteClasse(idClasse: number): Promise<ApiResponseInterface<Boolean>> {
 
-        let param = `?id=${idClasse}`
         const requestParameters: HttpRequestParamsInterface = {
-            requestType: HttpRequestType.get,
-            endpoint: `${GestionParamEndpoints.deleteClasse}${param}`,
+            requestType: HttpRequestType.delete,
+            endpoint: `${GestionParamEndpoints.deleteClasse}${idClasse}`,
             requiresToken: true,
             headers: {
                 Authorization: this.token || ""
@@ -142,12 +141,23 @@ export class GestionParamApiModel implements GestionParamApiInterface {
         return getHttpClient().request<ApiResponseInterface<Boolean>>(requestParameters);
     }
 
-    deleteUpdateNiveau(idNiveau: number): Promise<ApiResponseInterface<Boolean>> {
-
-        let param = `?id=${idNiveau}`
+    deleteNiveau(idNiveau: number): Promise<ApiResponseInterface<Boolean>> {
         const requestParameters: HttpRequestParamsInterface = {
-            requestType: HttpRequestType.get,
-            endpoint: GestionParamEndpoints.deleteUpdateNiveau,
+            requestType: HttpRequestType.delete,
+            endpoint: `${GestionParamEndpoints.deleteNiveau}${idNiveau}`,
+            requiresToken: true,
+            headers: {
+                Authorization: this.token || ""
+            },
+        }
+
+        return getHttpClient().request<ApiResponseInterface<Boolean>>(requestParameters);
+    }
+
+    deleteParamGlobal(idParam: number): Promise<ApiResponseInterface<Boolean>> {
+        const requestParameters: HttpRequestParamsInterface = {
+            requestType: HttpRequestType.delete,
+            endpoint: `${GestionParamEndpoints.deleteParamGlobal}${idParam}`,
             requiresToken: true,
             headers: {
                 Authorization: this.token || ""
@@ -158,7 +168,7 @@ export class GestionParamApiModel implements GestionParamApiInterface {
     }
 
     createUpdateEtab(etab: EtablissementInterface): Promise<ApiResponseInterface<Boolean>> {
-        console.log("ici")
+        
         const requestParameters: HttpRequestParamsInterface = {
             requestType: HttpRequestType.post,
             endpoint: GestionParamEndpoints.createEtab,

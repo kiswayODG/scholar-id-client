@@ -3,11 +3,11 @@ import { Sexe } from "./Sexe";
 
 export interface PerosnneInterface { 
     id? : number,
-    nom : String,
+    nom : string,
     prenom : String,
     sexe : Sexe,
-    adresse? : String,
-    telephone? : String,
-    dateNaissance : Date | String,
+    adresse? : string,
+    telephone? : string,
+    dateNaissance : Date | string,
     lieuNaiss : VilleInterface,
 }

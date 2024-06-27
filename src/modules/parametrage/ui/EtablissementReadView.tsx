@@ -76,7 +76,7 @@ const EtablissementReadView: React.FC = () => {
             style={{ paddingBottom: "20px" }}
             className="flex flex-col justify-center items-center "
           >
-            <Grid container sx={{ marginTop: "5%" }}>
+            <Grid container sx={{ marginTop: "5%", marginBottom:"5%" }}>
               <Grid item className="m-auto">
                 <List>
                   <ListItem>
@@ -123,14 +123,19 @@ const EtablissementReadView: React.FC = () => {
                       {state?.etablissement?.villeEtablissement.nomVille}
                     </ListItemText>
                   </ListItem>
+                  <ListItem>
+                    <ListItemText>
+                    {state?.etablissement?.adresse}
+                    </ListItemText>
+                  </ListItem>
                 </List>
               </Grid>
 
-              <Grid item xs={3} sx={{ marginTop: "8%" }}>
+              <Grid item xs={3} sx={{ marginBottom: "5%" }}>
                 <img
                   alt="preview image"
                   src={`data:image/png;base64,${state?.etablissement?.imageBase64}`}
-                  style={{ width: "200px", height: "200px", marginTop: "10%" }}
+                  style={{ width: "200px", height: "200px", marginTop: "5%" }}
                 />
               </Grid>
             </Grid>

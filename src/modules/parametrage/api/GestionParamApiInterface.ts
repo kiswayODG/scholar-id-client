@@ -17,5 +17,6 @@ export interface GestionParamApiInterface {
     createUpdateParam : (cycle : ParametreGlobalInterface)=>Promise<ApiResponseInterface<Boolean>>
     createUpdateNiveau : (niveau : NiveauEtudeInterface)=>Promise<ApiResponseInterface<Boolean>>
     deleteClasse : (idClasse : number)=>Promise<ApiResponseInterface<Boolean>> 
-    deleteUpdateNiveau : (idNiveau : number)=>Promise<ApiResponseInterface<Boolean>>
+    deleteNiveau : (idNiveau : number)=>Promise<ApiResponseInterface<Boolean>>
+    deleteParamGlobal : (idParam : number) => Promise<ApiResponseInterface<Boolean>>;
 }

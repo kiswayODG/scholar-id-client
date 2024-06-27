@@ -42,7 +42,7 @@ interface TitleProps {
 export  function Deposits() {
     return (
       <React.Fragment>
-        <Title>Recent Deposits</Title>
+        {/* <Title>Recent Deposits</Title>
         <Typography component="p" variant="h4">
           $3,024.00
         </Typography>
@@ -52,8 +52,8 @@ export  function Deposits() {
         <div>
           <Link color="primary" href="#" onClick={preventDefault}>
             View balance
-          </Link>
-        </div>
+          </Link> 
+        </div>*/}
       </React.Fragment>
     );
   }

@@ -22,7 +22,8 @@ import { EtablissementInterface } from "@modules/parametrage/model/Etablissement
 import { Sexe } from "commonDomain/Sexe";
 import AddUpdateEtablissement from "@modules/parametrage/components/AddUpdateEtablissement";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
-
+import { HttpStatusCode } from "axios";
+import { toast } from "react-toastify";
 
 interface FormValues {
   matricule: string;
@@ -48,24 +49,30 @@ interface viewState {
   lastMatricule: number;
   classes: ClasseInterface[];
   etab: EtablissementInterface;
-  villeSelected: number
+  villeSelected: number;
+  newMatricule: number;
+  base64Image: string;
 }
 
 interface viewPropsI {
   onClose: () => void;
   etudiant?: EtudiantInterface;
+  reload? : ()=> void;
 }
 
-const AddUpdateEtudiant: React.FC<viewPropsI> = ({ onClose, etudiant }) => {
+const AddUpdateEtudiant: React.FC<viewPropsI> = ({ onClose, etudiant, reload }) => {
   const [state, setState] = useState<viewState>({
     villes: [],
     lastMatricule: 0,
     classes: [],
     etab: {} as EtablissementInterface,
-    villeSelected : 1
+    villeSelected: 1,
+    newMatricule: 0,
+    base64Image:""
   });
 
   const getVille = useCallback(async () => {
+    const newMAtriculereq = await apiClient.effectifs.fetchnouveauMatricule();
     const classeResponse = await apiClient.parametrage.fetchClasses();
     const villeResponse = await apiClient.parametrage.fetchAllVille();
     const etabresponse = await apiClient.parametrage.fetchActiveEtablissement();
@@ -75,6 +82,7 @@ const AddUpdateEtudiant: React.FC<viewPropsI> = ({ onClose, etudiant }) => {
       villes: villeResponse.data as VilleInterface[],
       classes: classeResponse.data as ClasseInterface[],
       etab: etabresponse.data as EtablissementInterface,
+      newMatricule: newMAtriculereq.data as number,
     }));
   }, []);
 
@@ -85,45 +93,63 @@ const AddUpdateEtudiant: React.FC<viewPropsI> = ({ onClose, etudiant }) => {
   const validateSchema = Yup.object().shape({
     nom: Yup.string().required("Veuillez renseigner le nom"),
     prenom: Yup.string().required("veuillez renseigner le prénom"),
-    matricule: Yup.string().required("Entrez un matricule valide!"),
-    sexe: Yup.string().required("Entrez un matricule valide!"),
-    dateNaiss: Yup.string().required("Entrez un matricule valide!"),
     telphone: Yup.string().required("Entrez un numero valide!"),
+    dateNaiss: Yup.string().required("Veuillez renseigner une date valide"),
   });
 
   const formik = useFormik({
+    enableReinitialize: true,
     initialValues: {
-      matricule: "",
-      nom: "",
-      prenom: "",
-      sexe: "",
-      dateNaiss: "",
-      villeNaiss: 1,
-      telphone: "",
-      classe: 0,
-      etablissement: 0,
+      matricule:
+        etudiant?.matricule || "M" + `0000${state.newMatricule}`.slice(-4),
+      nom: etudiant?.nom || "",
+      prenom: etudiant?.prenom || "",
+      sexe: etudiant?.sexe || "M",
+      dateNaiss: etudiant?.dateNaissance || "",
+      villeNaiss: etudiant?.lieuNaiss?.id || state.villes[0]?.id!,
+      telphone: etudiant?.telephone || "",
+      classe: etudiant?.classe.id || state.classes[0]?.id!,
+      etablissement: etudiant?.etablissement.id || state.etab.id,
+      adresse: etudiant?.adresse || "",
 
-      nomPere: "",
-      prenomPere: "",
-      telPere: "",
-      nomMere: "",
-      prenomMere: "",
-      telMere: "",
+      nomPere: etudiant?.parent?.nom || "",
+      prenomPere: etudiant?.parent?.prenom || "",
+      telPere: etudiant?.parent?.telephone || "",
+      nomMere: etudiant?.parentbis?.nom || "",
+      prenomMere: etudiant?.parentbis?.prenom || "",
+      telMere: etudiant?.parentbis?.telephone || "",
     },
     validationSchema: validateSchema,
     onSubmit(values, formikHelpers) {
+   
+      
       let etudiant: EtudiantInterface = {
-        nom: values.nom,
-        prenom: values.prenom,
+        nom: values.nom.toUpperCase(),
+        prenom: values.prenom.toUpperCase(),
         classe: state.classes.filter((item) => item.id == values.classe)[0],
-        dateNaissance: values.dateNaiss,
+        dateNaissance: new Date(values.dateNaiss).toISOString().split('T')[0],
         matricule: values.matricule,
         sexe: values.sexe == "M" ? Sexe.Masculin : Sexe.Feminin,
+        telephone: values.telphone,
         etablissement: state.etab,
         lieuNaiss: state.villes.filter(
           (item) => item.id == values.villeNaiss
         )[0],
+        adresse: formik.values.adresse,
+        imageBase64: state.base64Image,
       };
+
+console.log(etudiant)
+      apiClient.effectifs.createOrUpdateStudent(etudiant).
+      then((res)=>{
+        if(res.status == HttpStatusCode.Ok)
+          toast.success("Etudiant créé avec succès !")
+        if(reload) reload()
+        onClose()
+      }).catch((error)=>{
+        toast.error("Une erreur s'est produite lors l'opération");
+        console.log(error)
+      })
     },
   });
 
@@ -138,7 +164,7 @@ const AddUpdateEtudiant: React.FC<viewPropsI> = ({ onClose, etudiant }) => {
       reader.readAsDataURL(file);
       reader.onload = () => {
         let base64 = reader.result as string;
-        
+
         base64 = base64.replace(/^data:image\/[a-z]+;base64,/, "");
         setState((prevState) => ({
           ...prevState,
@@ -154,7 +180,7 @@ const AddUpdateEtudiant: React.FC<viewPropsI> = ({ onClose, etudiant }) => {
       {state.etab == null ? (
         <AddUpdateEtablissement onClose={onClose} />
       ) : (
-        <form className="" onSubmit={formik.handleSubmit}>
+        <form onSubmit={formik.handleSubmit}>
           <DialogContent>
             <Grid className="flex flex-col justify-center ">
               <Grid className="space-x-4">
@@ -179,12 +205,9 @@ const AddUpdateEtudiant: React.FC<viewPropsI> = ({ onClose, etudiant }) => {
                   label="Nom"
                   name="nom"
                   onChange={formik.handleChange}
-                  value={formik.values.nom}
+                  value={formik.values.nom.toUpperCase()}
                   error={formik.touched.nom && Boolean(formik.errors.nom)}
-                  helperText={formik.touched.nom || formik.errors.nom}
-                  inputProps={{
-                    pattern: "[A-Za-z ]+",
-                  }}
+                  helperText={formik.touched.nom && formik.errors.nom}
                 />
 
                 <Controls.TextFieldComponent
@@ -192,10 +215,9 @@ const AddUpdateEtudiant: React.FC<viewPropsI> = ({ onClose, etudiant }) => {
                   label="Prénom"
                   name="prenom"
                   onChange={formik.handleChange}
-                  value={formik.values.prenom}
-                  helperText={
-                    formik.errors.prenom ? formik.errors.prenom : null
-                  }
+                  value={formik.values.prenom.toUpperCase()}
+                  helperText={formik.errors.prenom && formik.errors.prenom}
+                  error={formik.touched.prenom && Boolean(formik.errors.prenom)}
                 />
               </Grid>
 
@@ -214,7 +236,7 @@ const AddUpdateEtudiant: React.FC<viewPropsI> = ({ onClose, etudiant }) => {
 
                 <Controls.SelectComponent
                   name="classe"
-                  onChange={formik.handleChange}
+                  onChange={(option) => formik.setFieldValue("classe", option)}
                   options={state.classes}
                   renderLabel={(item) => item.libelleClasse}
                   renderValue={(item) => item.id}
@@ -224,19 +246,25 @@ const AddUpdateEtudiant: React.FC<viewPropsI> = ({ onClose, etudiant }) => {
               <Grid className="space-x-4">
                 <Controls.DatePickerComponent
                   name="dateNaiss"
-                  onChange={() => {}}
+                  onChange={(value) => formik.setFieldValue("dateNaiss", value)}
                   titre="Date de naiss."
-                  value={dayjs(new Date())}
+                  value={dayjs(formik.values.dateNaiss)}
                   width="200px"
+                  helperText={
+                    formik.errors.dateNaiss && formik.errors.dateNaiss
+                  }
+                  error={
+                    formik.touched.dateNaiss && Boolean(formik.errors.dateNaiss)
+                  }
                 />
                 <Controls.SelectComponent
                   name="villeNaiss"
                   label="Lieu de naissance"
-                  onChange={(e)=>{
-                    setState((prevState)=>({
+                  onChange={(e) => {
+                    setState((prevState) => ({
                       ...prevState,
-                      villeSelected:e
-                    }))
+                      villeSelected: e,
+                    }));
                   }}
                   options={state.villes}
                   renderLabel={(item) => item.nomVille}
@@ -251,8 +279,9 @@ const AddUpdateEtudiant: React.FC<viewPropsI> = ({ onClose, etudiant }) => {
                   name="telphone"
                   onChange={formik.handleChange}
                   value={formik.values.telphone}
-                  helperText={
-                    formik.errors.telphone ? formik.errors.telphone : null
+                  helperText={formik.errors.telphone && formik.errors.telphone}
+                  error={
+                    formik.touched.telphone && Boolean(formik.errors.telphone)
                   }
                 />
                 <Box className="border-solid ">
@@ -287,13 +316,13 @@ const AddUpdateEtudiant: React.FC<viewPropsI> = ({ onClose, etudiant }) => {
                 </Box>
               </Grid>
               <Button
-              fullWidth
-                  className="pointer-events-auto"
-                  sx={{ margin: "10px" }}
-                >
-                  Informations parents
-                  <NavigateNextIcon />
-                </Button>
+                fullWidth
+                className="pointer-events-auto"
+                sx={{ margin: "10px" }}
+              >
+                Informations parents
+                <NavigateNextIcon />
+              </Button>
             </Grid>
           </DialogContent>
           <DialogActions>

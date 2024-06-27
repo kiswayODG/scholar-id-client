@@ -36,6 +36,7 @@ export const DatePickerComponent = ({titre,onChange,value,width,...rest}: DatePr
                     borderColor: colors.primary[100],
                 },
             },}}
+            
 
             {...rest}
       />

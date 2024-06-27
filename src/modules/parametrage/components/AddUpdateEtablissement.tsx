@@ -20,7 +20,7 @@ import { toast } from "react-toastify";
 interface viewPropsI {
   etablissement?: EtablissementInterface;
   onClose: () => void;
-  reload?: ()=> void;
+  reload?: () => void;
 }
 
 interface FormValues {
@@ -44,11 +44,11 @@ interface viewState {
 const AddUpdateEtablissement: React.FC<viewPropsI> = ({
   etablissement,
   onClose,
-  reload
+  reload,
 }) => {
   const [state, setState] = useState<viewState>({
     villes: [],
-    base64Image: "",
+    base64Image: etablissement?.imageBase64,
   });
 
   const validateSchema = Yup.object().shape({
@@ -68,6 +68,7 @@ const AddUpdateEtablissement: React.FC<viewPropsI> = ({
       numeroTelBis: etablissement?.numeroTelBis || "",
       villeEtab: etablissement?.villeEtablissement.id || 1,
       logoEtab: etablissement?.logoEtablissement || null,
+      adresse: etablissement?.adresse || ",",
     },
     validationSchema: validateSchema,
     async onSubmit(values, formikHelpers) {
@@ -77,21 +78,23 @@ const AddUpdateEtablissement: React.FC<viewPropsI> = ({
         nomEtablissement: values.nomEtab,
         numeroTel: values.numeroTel,
         numeroTelBis: values.numeroTelBis,
+        adresse: values.adresse,
         villeEtablissement: state.villes.filter(
           (item) => item.id == values.villeEtab
         )[0],
         imageBase64: state.base64Image,
       };
 
-      await apiClient.parametrage.createUpdateEtab(etabToSend)
-      .then(()=>{
-        if(reload)
-          reload();
-        onClose();
-        toast.success("Etablissement créé/mis à jour avec succès 👌",);
-      }).catch((error)=>{
-        toast.error("Une erreur s'est produite")
-      })
+      await apiClient.parametrage
+        .createUpdateEtab(etabToSend)
+        .then(() => {
+          if (reload) reload();
+          onClose();
+          toast.success("Etablissement créé/mis à jour avec succès 👌");
+        })
+        .catch((error) => {
+          toast.error("Une erreur s'est produite");
+        });
     },
   });
 
@@ -136,13 +139,13 @@ const AddUpdateEtablissement: React.FC<viewPropsI> = ({
           <Grid className="flex flex-col justify-center ">
             <Controls.TextFieldComponent
               label="Nom établissement"
+              name="nomEtab"
               size="small"
               value={formik.values.nomEtab}
               onChange={formik.handleChange}
               error={formik.touched.nomEtab && Boolean(formik.errors.nomEtab)}
               helperText={formik.touched.nomEtab && formik.errors.nomEtab}
             />
-
 
             <Controls.TextFieldComponent
               label="Numero telephone"
@@ -173,12 +176,22 @@ const AddUpdateEtablissement: React.FC<viewPropsI> = ({
 
             <Controls.SelectComponent
               name="villeEtab"
-              onChange={option=>formik.setFieldValue("villeEtab",option)}
+              onChange={(option) => formik.setFieldValue("villeEtab", option)}
               options={state.villes}
               renderLabel={(item) => item.nomVille}
               renderValue={(item) => item.id}
               valeur={formik.values.villeEtab}
               width={"18rem"}
+            />
+
+            <Controls.TextFieldComponent
+              label="Adresse"
+              size="small"
+              name="adresse"
+              value={formik.values.adresse}
+              onChange={formik.handleChange}
+              error={formik.touched.adresse && Boolean(formik.errors.adresse)}
+              helperText={formik.touched.adresse && formik.errors.adresse}
             />
 
             <Box className="border-solid ">
@@ -215,10 +228,7 @@ const AddUpdateEtablissement: React.FC<viewPropsI> = ({
         </DialogContent>
         <DialogActions>
           <Controls.CancelButton onCancel={onClose} title="Annuler" />
-          <Controls.OnActionButton
-            type="submit"
-            titre="Valider"
-          />
+          <Controls.OnActionButton type="submit" titre="Valider" />
         </DialogActions>
       </form>
     </>

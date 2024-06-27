@@ -20,8 +20,8 @@ const logoStyle = {
 function Copyright() {
   return (
     <Typography variant="body2" color="text.secondary" mt={1}>
-      {'Copyright © '}
-      <Link href="https://mui.com/">Sitemark&nbsp;</Link>
+      {'Tout droit reservé - Propriété intéllectuelle © '}
+      {/* <Link href="https://mui.com/">Sitemark&nbsp;</Link> */}
       {new Date().getFullYear()}
     </Typography>
   );
@@ -55,7 +55,7 @@ export default function Footer() {
             minWidth: { xs: '100%', sm: '60%' },
           }}
         >
-          <Box sx={{ width: { xs: '100%', sm: '60%' } }}>
+          {/* <Box sx={{ width: { xs: '100%', sm: '60%' } }}>
             <Box sx={{ ml: '-15px' }}>
               <img
                 src={
@@ -89,9 +89,9 @@ export default function Footer() {
                 Subscribe
               </Button>
             </Stack>
-          </Box>
+          </Box> */}
         </Box>
-        <Box
+        {/* <Box
           sx={{
             display: { xs: 'none', sm: 'flex' },
             flexDirection: 'column',
@@ -116,8 +116,8 @@ export default function Footer() {
           <Link color="text.secondary" href="#">
             FAQs
           </Link>
-        </Box>
-        <Box
+        </Box> */}
+        {/* <Box
           sx={{
             display: { xs: 'none', sm: 'flex' },
             flexDirection: 'column',
@@ -156,7 +156,7 @@ export default function Footer() {
           <Link color="text.secondary" href="#">
             Contact
           </Link>
-        </Box>
+        </Box> */}
       </Box>
       <Box
         sx={{
@@ -170,17 +170,17 @@ export default function Footer() {
       >
         <div>
           <Link color="text.secondary" href="#">
-            Privacy Policy
+            Conditions d'utilisations
           </Link>
           <Typography display="inline" sx={{ mx: 0.5, opacity: 0.5 }}>
             &nbsp;•&nbsp;
           </Typography>
           <Link color="text.secondary" href="#">
-            Terms of Service
+            Standards
           </Link>
           <Copyright />
         </div>
-        <Stack
+        {/* <Stack
           direction="row"
           justifyContent="left"
           spacing={1}
@@ -213,7 +213,7 @@ export default function Footer() {
           >
             <LinkedInIcon />
           </IconButton>
-        </Stack>
+        </Stack> */}
       </Box>
     </Container>
   );

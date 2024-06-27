@@ -8,5 +8,6 @@ logoEtablissement : ArrayBuffer | File |null,
 numeroTel : string,
 numeroTelBis : string,
 imageBase64?:string,
-villeEtablissement : VilleInterface
+villeEtablissement : VilleInterface,
+adresse : string;
 }

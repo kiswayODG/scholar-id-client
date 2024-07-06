@@ -79,6 +79,10 @@ const EtablissementReadView: React.FC = () => {
             <Grid container sx={{ marginTop: "5%", marginBottom:"5%" }}>
               <Grid item className="m-auto">
                 <List>
+                <ListItem>
+                    <ListItemText>Année scolaire</ListItemText>
+                  </ListItem>
+                  <Divider />
                   <ListItem>
                     <ListItemText>Nom</ListItemText>
                   </ListItem>
@@ -103,6 +107,11 @@ const EtablissementReadView: React.FC = () => {
               </Grid>
               <Grid item className="m-auto">
                 <List>
+                <ListItem>
+                    <ListItemText>
+                      {state?.etablissement?.anneeScolaire}
+                    </ListItemText>
+                  </ListItem>
                   <ListItem>
                     <ListItemText>
                       {state?.etablissement?.nomEtablissement}

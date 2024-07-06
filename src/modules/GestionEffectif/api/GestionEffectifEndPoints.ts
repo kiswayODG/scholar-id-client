@@ -5,9 +5,9 @@ export const GestionEffectifEndpoints = {
     deleteEtudiant : "/gesetudiant/delete",
     printEtudiantIDCard : "/gesetudiant/print/scholar-id/",
     fetchnouveauMatricule : "/gesetudiant/last-etab-matricule",
+    createMultiple :"/gesetudiant/create-multiple",
 
     printUniqueCard : "/reporting/carte-unique",
-    printCardMulti : "/reporting/create-liste-card"
-
+    printCardMulti : "/reporting/create-liste-card",
 
 }

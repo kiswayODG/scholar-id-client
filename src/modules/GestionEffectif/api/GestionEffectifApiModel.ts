@@ -50,6 +50,20 @@ export class GestionEffectifApiModel implements GestionEffectifApiInterface {
         return getHttpClient().request<ApiResponseInterface<Boolean>>(requestParameters);
     }
 
+    createMultipleStudent(etudiants: EtudiantInterface[]) : Promise<ApiResponseInterface<Boolean>>{
+        
+        const requestParameters: HttpRequestParamsInterface = {
+            requestType: HttpRequestType.post,
+            endpoint: GestionEffectifEndpoints.createMultiple,
+            requiresToken: true,
+            headers: {
+                Authorization: this.token || ""
+            },
+            payload : etudiants
+        }
+        return getHttpClient().request<ApiResponseInterface<Boolean>>(requestParameters);
+    }
+
     deleteEtudiant(etudiant: EtudiantInterface) : Promise<ApiResponseInterface<Boolean>>{
         
         const requestParameters: HttpRequestParamsInterface = {

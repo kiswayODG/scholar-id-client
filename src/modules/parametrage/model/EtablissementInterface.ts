@@ -10,4 +10,5 @@ numeroTelBis : string,
 imageBase64?:string,
 villeEtablissement : VilleInterface,
 adresse : string;
+anneeScolaire: string;
 }

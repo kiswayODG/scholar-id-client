@@ -24,6 +24,7 @@ import { apiClient } from "app-api/api";
 import levenshtein from "js-levenshtein";
 import { ClasseInterface } from "@modules/parametrage/model/ClasseInterface";
 import { convertExcelDateToJSDate, parseDate } from "@utils/Utils";
+import { useNavigate } from "react-router-dom";
 
 interface viewStateI {
   fileSheet: File | null;
@@ -161,8 +162,10 @@ const ChargementFichier: React.FC = () => {
     return closestClass;
   };
 
-  const handleFinish = () => {
-    let studentsTosend = etudiantsImport.map((item) => {
+  const navigate = useNavigate();
+
+  const handleFinish = async () => {
+    let studentsTosend = etudiantsImport.map( (item) => {
       const closestCity = findClosestCity(item.lieuNaiss, state.villes);
       const closestClass = findClosestClass(item.classe, state.classes);
 
@@ -189,7 +192,18 @@ const ChargementFichier: React.FC = () => {
       return etudiant;
     });
 
-    console.log(studentsTosend)
+    await apiClient.effectifs.createMultipleStudent(studentsTosend)
+      .then((res)=>{
+        if(res.data==true){
+          toast.success("Importation réalisée avec succès !");
+        }else{
+          toast.error("Une erreur s'est produite lors de l'opération");
+        }
+      }).catch((error)=> {
+        console.log(error);
+      })
+
+      navigate(Navigation.EFFECTIF);
   };
 
 

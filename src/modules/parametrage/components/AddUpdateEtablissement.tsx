@@ -58,6 +58,9 @@ const AddUpdateEtablissement: React.FC<viewPropsI> = ({
     numeroTel: Yup.string().required(
       "veuillez renseigner le numéro de téléphone !"
     ),
+    anneeScolaire: Yup.string()
+    .matches(/^\d{4}-\d{4}$/, 'L\'année scolaire doit être au format "YYYY-YYYY"')
+    .required('L\'année scolaire est requise'),
   });
 
   const formik = useFormik({
@@ -68,7 +71,8 @@ const AddUpdateEtablissement: React.FC<viewPropsI> = ({
       numeroTelBis: etablissement?.numeroTelBis || "",
       villeEtab: etablissement?.villeEtablissement.id || 1,
       logoEtab: etablissement?.logoEtablissement || null,
-      adresse: etablissement?.adresse || ",",
+      adresse: etablissement?.adresse || "",
+      anneeScolaire: etablissement?.anneeScolaire || "",
     },
     validationSchema: validateSchema,
     async onSubmit(values, formikHelpers) {
@@ -83,6 +87,7 @@ const AddUpdateEtablissement: React.FC<viewPropsI> = ({
           (item) => item.id == values.villeEtab
         )[0],
         imageBase64: state.base64Image,
+        anneeScolaire: values.anneeScolaire,
       };
 
       await apiClient.parametrage
@@ -94,6 +99,7 @@ const AddUpdateEtablissement: React.FC<viewPropsI> = ({
         })
         .catch((error) => {
           toast.error("Une erreur s'est produite");
+          console.log(error)
         });
     },
   });
@@ -137,6 +143,15 @@ const AddUpdateEtablissement: React.FC<viewPropsI> = ({
       <form className="" onSubmit={formik.handleSubmit}>
         <DialogContent>
           <Grid className="flex flex-col justify-center ">
+          <Controls.TextFieldComponent
+              label="Année scolaire"
+              name="anneeScolaire"
+              size="small"
+              value={formik.values.anneeScolaire}
+              onChange={formik.handleChange}
+              error={formik.touched.anneeScolaire && Boolean(formik.errors.anneeScolaire)}
+              helperText={formik.touched.anneeScolaire && formik.errors.anneeScolaire}
+            />
             <Controls.TextFieldComponent
               label="Nom établissement"
               name="nomEtab"

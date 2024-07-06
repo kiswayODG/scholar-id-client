@@ -7,6 +7,7 @@ const NiveauEtudeReadView  = lazy(() =>import("../modules/parametrage/ui/NiveauE
 const ClasseReadView  = lazy(() =>import("../modules/parametrage/ui/ClasseReadView"));
 const EffectifReadView = lazy(()=>import("../modules/GestionEffectif/ui/EffectifReadView"));
 const MainDashboard  = lazy(() =>import("../modules/dashboard/MainDashboard"));
+const ImportationView = lazy(()=>import("@modules/GestionEffectif/ui/ImportationView"));
 const Login  = lazy(() =>import("../modules/general/Login"));
 
 
@@ -36,6 +37,11 @@ export const routes: routeI[] = [
     referenceModule: 0,
     path: Navigation.EFFECTIF,
     component: EffectifReadView
+},
+{
+    referenceModule: 0,
+    path: Navigation.IMPORTATION_DATA,
+    component: ImportationView
 },
 {
     referenceModule: 3,

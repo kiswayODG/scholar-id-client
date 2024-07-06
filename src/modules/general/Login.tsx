@@ -72,7 +72,7 @@ export default function Login() {
         .userLogin(user)  
         .then((res) => {
           let result = res.data as AuthenticationResponse;
-
+          alert("ici")
           if (result.logged == true) {
             setToken(result.token);
             setUserConnected(result.user);

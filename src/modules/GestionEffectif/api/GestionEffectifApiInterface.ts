@@ -7,5 +7,8 @@ export interface GestionEffectifApiInterface {
     createOrUpdateStudent : (etudiant: EtudiantInterface)=>Promise<ApiResponseInterface<Boolean>>;
     deleteEtudiant : (etudiant: EtudiantInterface)=>Promise<ApiResponseInterface<Boolean>>;
 
+    printUniqueCard : (id: number) => Promise<any>;
+    printCardMulti : (students:EtudiantInterface []) => Promise<any>;
+
 
 }

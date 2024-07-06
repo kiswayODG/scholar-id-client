@@ -6,8 +6,8 @@ export interface EtudiantInterface extends PerosnneInterface{
     matricule : String,
     parent? : PerosnneInterface,
     parentbis? : PerosnneInterface,
-    etablissement : EtablissementInterface,
-    classe : ClasseInterface,
+    etablissement? : EtablissementInterface,
+    classe? : ClasseInterface,
     imageBase64 :string,
     deleteFlag?: string,
 }

@@ -4,7 +4,10 @@ export const GestionEffectifEndpoints = {
     fetchEtudiantById : "/gesetudiant/",
     deleteEtudiant : "/gesetudiant/delete",
     printEtudiantIDCard : "/gesetudiant/print/scholar-id/",
-    fetchnouveauMatricule : "/gesetudiant/last-etab-matricule"
+    fetchnouveauMatricule : "/gesetudiant/last-etab-matricule",
+
+    printUniqueCard : "/reporting/carte-unique",
+    printCardMulti : "/reporting/create-liste-card"
 
 
 }

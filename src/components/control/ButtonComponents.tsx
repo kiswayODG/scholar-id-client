@@ -23,11 +23,13 @@ export const SubmitButton=(props: CancelButtonProps)=> {
     title?: string;
     onCancel?: () => void;
     icon?: any;
+    startIcon?: any;
     sx?: React.CSSProperties;
+    href?: string;
   }
   
   export function CancelButton(props: CancelButtonProps) {
-    const { icon, title, onCancel, sx,...rest } = props;
+    const { icon, title,startIcon, onCancel, sx,href,...rest } = props;
   
     return (
       <Button
@@ -36,10 +38,12 @@ export const SubmitButton=(props: CancelButtonProps)=> {
         variant="contained"
         className="bg-transparent hover:bg-red-500 text-red-700 font-semibold hover:text-white hover:border-transparent "
         onClick={onCancel}
-
+        startIcon={startIcon}
+        sx={sx}
+        href={href}
         {...rest}
       >
-        Annuler
+        {title?title:"Annuler"}
       </Button>
     );
   }
@@ -83,8 +87,9 @@ export const SubmitButton=(props: CancelButtonProps)=> {
     [key: string]: any;
     style?:any;
     useTheme?: boolean;
+    href?:string;
   }
-  export function OnActionButton({titre,onAction,icon,style,useTheme,type,...rest}: onActionButtonProps) {
+  export function OnActionButton({titre,onAction,icon,style,useTheme,type,href,...rest}: onActionButtonProps) {
   
   
     return (
@@ -101,6 +106,7 @@ export const SubmitButton=(props: CancelButtonProps)=> {
           backgroundColor: "green",
           color:"white"
         }}
+        href={href}
       >
         {titre || "Valider"}
       </Button>

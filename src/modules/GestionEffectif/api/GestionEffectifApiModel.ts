@@ -64,5 +64,34 @@ export class GestionEffectifApiModel implements GestionEffectifApiInterface {
         return getHttpClient().request<ApiResponseInterface<Boolean>>(requestParameters);
     }
 
+    printUniqueCard(id: number) : Promise<any>{
+        
+        const requestParameters: HttpRequestParamsInterface = {
+            requestType: HttpRequestType.get,
+            endpoint: `${GestionEffectifEndpoints.printUniqueCard}/${id}`,
+            requiresToken: true,
+            headers: {
+                Authorization: this.token || ""
+            },
+            responseType: "arraybuffer"
+        }
+        return getHttpClient().request<any>(requestParameters);
+    }
+
+    printCardMulti(etudiants: EtudiantInterface[]) : Promise<any>{
+        
+        const requestParameters: HttpRequestParamsInterface = {
+            requestType: HttpRequestType.post,
+            endpoint: GestionEffectifEndpoints.printCardMulti,
+            requiresToken: true,
+            headers: {
+                Authorization: this.token || ""
+            },
+            payload: etudiants,
+            responseType: "arraybuffer"
+        }
+        return getHttpClient().request<any>(requestParameters);
+    }
+
 }
  

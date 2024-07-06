@@ -5,7 +5,7 @@ export interface PerosnneInterface {
     id? : number,
     nom : string,
     prenom : String,
-    sexe : Sexe,
+    sexe : Sexe | string,
     adresse? : string,
     telephone? : string,
     dateNaissance : Date | string,

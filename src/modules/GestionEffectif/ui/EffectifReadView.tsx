@@ -16,12 +16,19 @@ import { TableActions } from "@components/TableAction/TableActions";
 import { HttpStatusCode } from "axios";
 import { toast } from "react-toastify";
 import ConfirmComponent from "@components/modals/ConfirmComponent";
+import { ListItem } from "@mui/material";
+import { NiveauEtudeInterface } from "@modules/parametrage/model/NiveauInterface";
+import { Download, Inbox, InboxOutlined, InputRounded } from "@mui/icons-material";
+import { Navigation } from "@appConfigs/Navigation";
 
 interface viewStateI {
   data: EtudiantInterface[];
   filteredData: EtudiantInterface[];
   classe: ClasseInterface[];
+  currentRow: EtudiantInterface | undefined;
   rowToDelete: EtudiantInterface | undefined;
+  sexeFilter: string;
+  classFilter: number;
 }
 
 const EffectifReadView: React.FC = () => {
@@ -29,12 +36,16 @@ const EffectifReadView: React.FC = () => {
     data: [],
     filteredData: [],
     classe: [],
+    currentRow: undefined,
     rowToDelete: undefined,
+    sexeFilter: "tous",
+    classFilter: 0,
   });
 
   const addUpdateStudentModal = useModal();
 
   const fetchEtudiantData = async () => {
+    const classReq = await apiClient.parametrage.fetchClasses();
     await apiClient.effectifs
       .fetchAllEtudiant()
       .then((res) => {
@@ -42,6 +53,7 @@ const EffectifReadView: React.FC = () => {
           ...prevState,
           data: res.data as EtudiantInterface[],
           filteredData: res.data as EtudiantInterface[],
+          classe: classReq.data as ClasseInterface[],
         }));
       })
       .catch((error) => {
@@ -53,35 +65,60 @@ const EffectifReadView: React.FC = () => {
     fetchEtudiantData();
   }, []);
 
-  const handleAddUpdateEtudiant = () => {
+  const handleAddEtudiant = () => {
+    setState((prevState) => ({
+      ...prevState,
+      currentRow: undefined,
+    }));
     addUpdateStudentModal.toggle();
+  };
+
+  const defaultClasse: ClasseInterface = {
+    id: 0,
+    codeClasse: "",
+    libelleClasse: "Classe",
+    niveauEtude: {} as NiveauEtudeInterface,
   };
 
   const filterComponent = () => {
     return (
       <>
         <Controls.SelectComponent
-          onChange={() => {}}
-          options={[]}
-          renderLabel={() => ""}
-          renderValue={() => ""}
-          valeur={""}
+          onChange={(e) => {
+            setState((prevState) => ({
+              ...prevState,
+              sexeFilter: e,
+            }));
+          }}
+          options={[
+            { libelle: "Sexe", valeur: "tous" },
+            { libelle: "Masculin", valeur: "Masculin" },
+            { libelle: "Feminin", valeur: "Feminin" },
+          ]}
+          renderLabel={(item) => item.libelle}
+          renderValue={(item) => item.valeur}
+          valeur={state.sexeFilter}
           width={200}
         />{" "}
         &nbsp;
         <Controls.SelectComponent
-          onChange={() => {}}
-          options={[]}
-          renderLabel={() => ""}
-          renderValue={() => ""}
-          valeur={""}
+          onChange={(e) => {
+            setState((prevState) => ({
+              ...prevState,
+              classFilter: e,
+            }));
+          }}
+          options={[defaultClasse, ...state.classe]}
+          renderLabel={(item) => item.libelleClasse}
+          renderValue={(item) => item.id}
+          valeur={state.classFilter}
           width={200}
         />
         &nbsp;
         <Controls.OnActionButton
           type="button"
           onAction={() => {
-            handleAddUpdateEtudiant();
+            handleAddEtudiant();
           }}
           titre="Nvl élève"
           icon={<AddCircleOutlined />}
@@ -89,15 +126,48 @@ const EffectifReadView: React.FC = () => {
         &nbsp;
         <Controls.OnActionButton
           type="button"
-          onAction={() => {}}
+          onAction={() => handlePrintGlobal(state.filteredData)}
           titre="Générer"
           icon={<BadgeIcon />}
+        />
+        <Controls.OnActionButton
+          type="button"
+          href={Navigation.IMPORTATION_DATA}
+          titre="Importer"
+          icon={<Download />}
+          
         />
       </>
     );
   };
 
-  const handleUpdateStudent = (etudiant: EtudiantInterface) => {};
+  useEffect(() => {
+    let data = state.data.filter((item) => {
+      let sexeBool = false;
+      let classBool = false;
+      if (item.sexe == state.sexeFilter || state.sexeFilter == "tous")
+        sexeBool = true;
+      if (item.classe?.id == state.classFilter || state.classFilter == 0)
+        classBool = true;
+
+      return sexeBool && classBool;
+    });
+
+    setState((prevState) => {
+      return {
+        ...prevState,
+        filteredData: data,
+      };
+    });
+  }, [state.sexeFilter, state.classFilter]);
+
+  const handleUpdateStudent = (etudiant: EtudiantInterface) => {
+    setState((prevState) => ({
+      ...prevState,
+      currentRow: etudiant,
+    }));
+    addUpdateStudentModal.toggle();
+  };
 
   const confirmDeleteModal = useModal();
 
@@ -128,6 +198,45 @@ const EffectifReadView: React.FC = () => {
       });
   };
 
+  const handlePrint = async (etudiant: EtudiantInterface) => {
+    let buffer: ArrayBuffer = new ArrayBuffer(0);
+    await apiClient.effectifs
+      .printUniqueCard(etudiant?.id!)
+      .then((res) => {
+        buffer = res;
+      })
+      .catch((reason) => console.log(reason));
+    if (buffer.byteLength > 0) {
+      const blob = new Blob([new Uint8Array(buffer)], {
+        type: "application/pdf",
+      });
+      const fileUrl = URL.createObjectURL(blob);
+      window.open(fileUrl, "_blank");
+    } else {
+      toast.success("Fichier introuvable ou supprimé!");
+    }
+  };
+
+  const handlePrintGlobal = async (etudiants: EtudiantInterface[]) => {
+    let buffer: ArrayBuffer = new ArrayBuffer(0);
+
+    await apiClient.effectifs
+      .printCardMulti(etudiants)
+      .then((res) => {
+        buffer = res;
+      })
+      .catch((reason) => console.log(reason));
+    if (buffer.byteLength > 0) {
+      const blob = new Blob([new Uint8Array(buffer)], {
+        type: "application/pdf",
+      });
+      const fileUrl = URL.createObjectURL(blob);
+      window.open(fileUrl, "_blank");
+    } else {
+      toast.success("Fichier introuvable ou supprimé!");
+    }
+  };
+
   const column: GridColDef<EtudiantInterface>[] = [
     {
       field: "matricule",
@@ -151,7 +260,7 @@ const EffectifReadView: React.FC = () => {
     {
       field: "classe",
       headerName: "Classe",
-      valueGetter: (params) => params.row.classe.libelleClasse,
+      valueGetter: (params) => params.row.classe?.libelleClasse,
     },
     {
       field: "telephone",
@@ -171,7 +280,9 @@ const EffectifReadView: React.FC = () => {
         <TableActions.updateAction
           onAction={() => handleUpdateStudent(params.row)}
         />,
-        <TableActions.printRowCardAction onAction={() => {}} />,
+        <TableActions.printRowCardAction
+          onAction={() => handlePrint(params.row)}
+        />,
         <TableActions.deleteAction
           onAction={() => handleWarningDelete(params.row)}
         />,
@@ -193,7 +304,11 @@ const EffectifReadView: React.FC = () => {
           isOpen={addUpdateStudentModal.isOpen}
           onClose={addUpdateStudentModal.toggle}
         >
-          <AddUpdateEtudiant onClose={addUpdateStudentModal.toggle} />
+          <AddUpdateEtudiant
+            onClose={addUpdateStudentModal.toggle}
+            etudiant={state.currentRow!}
+            reload={fetchEtudiantData}
+          />
         </FormDialog>
         <ConfirmComponent
           isOpen={confirmDeleteModal.isOpen}

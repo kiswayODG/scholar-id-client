@@ -22,6 +22,17 @@ export class UsersApiModel implements UsersApInterface {
         return getHttpClient().request<ApiResponseInterface<AuthenticationResponse>>(requestParameters);
     }
 
+    createUser(newUser: UserInterface): Promise<ApiResponseInterface<AuthenticationResponse>> {
+        const requestParameters: HttpRequestParamsInterface = {
+            requestType: HttpRequestType.post,
+            endpoint: UsersEndpoints.createUser,
+            requiresToken: false,
+            payload:newUser,
+           
+        }
+        return getHttpClient().request<ApiResponseInterface<AuthenticationResponse>>(requestParameters);
+    }
+
 
     fetchUserList(): Promise<ApiResponseInterface<UserInterface>> {
         const requestParameters: HttpRequestParamsInterface = {

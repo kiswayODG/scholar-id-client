@@ -9,5 +9,5 @@ export interface PerosnneInterface {
     adresse? : string,
     telephone? : string,
     dateNaissance : Date | string,
-    lieuNaiss : VilleInterface,
+    lieuNaiss? : VilleInterface,
 }

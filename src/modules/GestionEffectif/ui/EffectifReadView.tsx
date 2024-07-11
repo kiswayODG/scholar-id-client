@@ -98,7 +98,7 @@ const EffectifReadView: React.FC = () => {
           renderLabel={(item) => item.libelle}
           renderValue={(item) => item.valeur}
           valeur={state.sexeFilter}
-          width={200}
+          width={150}
         />{" "}
         &nbsp;
         <Controls.SelectComponent
@@ -112,10 +112,11 @@ const EffectifReadView: React.FC = () => {
           renderLabel={(item) => item.libelleClasse}
           renderValue={(item) => item.id}
           valeur={state.classFilter}
-          width={200}
+          width={150}
         />
         &nbsp;
         <Controls.OnActionButton
+        
           type="button"
           onAction={() => {
             handleAddEtudiant();

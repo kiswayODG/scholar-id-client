@@ -82,7 +82,7 @@ export const SubmitButton=(props: CancelButtonProps)=> {
   interface onActionButtonProps {
     titre?: string;
     type : "button" |"submit"
-    onAction?: (T?: Object) => void;
+    onAction?: (T?: any) => void;
     icon?: ReactNode;
     [key: string]: any;
     style?:any;
@@ -103,6 +103,7 @@ export const SubmitButton=(props: CancelButtonProps)=> {
         startIcon={icon}
         sx={style}
         style={{
+          
           backgroundColor: "green",
           color:"white"
         }}

@@ -5,4 +5,6 @@ export interface UsersApInterface {
     userLogin:(userCredentials : UserInterface) => Promise<ApiResponseInterface<AuthenticationResponse>>;
     fetchUserList: () => Promise<ApiResponseInterface<UserInterface>>;
     fetchRoleList: () => Promise<ApiResponseInterface<[]>>;
+
+    createUser:(newUser : UserInterface) => Promise<ApiResponseInterface<AuthenticationResponse>>
 }

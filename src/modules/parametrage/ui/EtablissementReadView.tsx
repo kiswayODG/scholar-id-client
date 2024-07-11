@@ -11,6 +11,7 @@ import {
   ListItem,
   ListItemText,
   Paper,
+  Typography,
 } from "@mui/material";
 import BorderColorIcon from "@mui/icons-material/BorderColor";
 import Controls from "@components/controls";
@@ -76,10 +77,70 @@ const EtablissementReadView: React.FC = () => {
             style={{ paddingBottom: "20px" }}
             className="flex flex-col justify-center items-center "
           >
-            <Grid container sx={{ marginTop: "5%", marginBottom:"5%" }}>
+            <Grid
+              display={"flex"}
+              justifyContent={"space-between"}
+              sx={{ width: "90%", marginX: "5%", marginTop: "1%" }}
+            >
+              <Grid item className="flex flex-col items-center">
+                <img
+                  alt="preview image"
+                  src={`data:image/png;base64,${state?.etablissement?.imageBase64}`}
+                  style={{
+                    maxWidth: "120px",
+                    maxHeight: "120px",
+                    width: "auto",
+                    height: "auto",
+                    marginTop: "5%",
+                  }}
+                />
+                <Typography>Logo établissement</Typography>
+              </Grid>
+
+              <Grid item className="flex flex-col items-center">
+                <img
+                  alt="preview image"
+                  src={`data:image/png;base64,${state?.etablissement?.cachetimageBase64}`}
+                  style={{
+                    maxWidth: "120px",
+                    maxHeight: "120px",
+                    width: "auto",
+                    height: "auto",
+                    marginTop: "5%",
+                  }}
+                />
+                <Typography>Cachet établissement</Typography>
+              </Grid>
+
+              <Grid item className="flex flex-col  items-center">
+                <div>
+                  <img
+                    alt="preview image"
+                    src={`data:image/png;base64,${state?.etablissement?.signatureRespoImageBase64}`}
+                    style={{
+                      maxWidth: "120px",
+                      maxHeight: "120px",
+                      width: "auto",
+                      height: "auto",
+                      marginTop: "5%",
+                    }}
+                  />
+                </div>
+                <div>
+                  <Typography>Signature responsable établissement</Typography>
+                </div>
+              </Grid>
+            </Grid>
+
+            <Grid
+              container
+              sx={{
+                marginTop: "10px",
+              }}
+            >
               <Grid item className="m-auto">
                 <List>
-                <ListItem>
+                  <ListItem>
                     <ListItemText>Année scolaire</ListItemText>
                   </ListItem>
                   <Divider />
@@ -105,47 +166,37 @@ const EtablissementReadView: React.FC = () => {
                   <Divider />
                 </List>
               </Grid>
-              <Grid item className="m-auto">
+              <Grid item className="m-auto ">
                 <List>
-                <ListItem>
-                    <ListItemText>
+                  <ListItem>
+                    <span className="text-black font-extrabold font-mono">
                       {state?.etablissement?.anneeScolaire}
-                    </ListItemText>
+                    </span>
                   </ListItem>
                   <ListItem>
-                    <ListItemText>
+                    <span className="text-black font-extrabold font-mono">
                       {state?.etablissement?.nomEtablissement}
-                    </ListItemText>
+                    </span>
                   </ListItem>
                   <ListItem>
-                    <ListItemText>
+                    <span className="text-black font-extrabold font-mono">
                       {state?.etablissement?.numeroTel}
-                    </ListItemText>
+                    </span>
                   </ListItem>
                   <ListItem>
-                    <ListItemText>
+                    <span className="text-black font-extrabold font-mono">
                       {state?.etablissement?.numeroTelBis}
-                    </ListItemText>
+                    </span>
                   </ListItem>
                   <ListItem>
-                    <ListItemText>
+                    <span className="text-black font-extrabold font-mono">
                       {state?.etablissement?.villeEtablissement.nomVille}
-                    </ListItemText>
+                    </span>
                   </ListItem>
                   <ListItem>
-                    <ListItemText>
-                    {state?.etablissement?.adresse}
-                    </ListItemText>
+                  <span className="text-black font-extrabold font-mono">{state?.etablissement?.adresse}</span>
                   </ListItem>
                 </List>
-              </Grid>
-
-              <Grid item xs={3} sx={{ marginBottom: "5%" }}>
-                <img
-                  alt="preview image"
-                  src={`data:image/png;base64,${state?.etablissement?.imageBase64}`}
-                  style={{ width: "200px", height: "200px", marginTop: "5%" }}
-                />
               </Grid>
             </Grid>
             <Controls.OnActionButton

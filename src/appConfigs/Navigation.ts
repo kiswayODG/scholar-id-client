@@ -9,5 +9,6 @@ export const Navigation = {
     PARAMETRAGE_ETAB: "/parametrage/etablissement",
     LOGIN : "/login",
     SUBSCRIBING : "nouvel-abonnement",
-    FREEMIUM : "compte-gratuit"
+    FREEMIUM : "compte-gratuit",
+    NEW_USER: "/new-user"
   } as const;

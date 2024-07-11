@@ -16,6 +16,7 @@ import { useCallback, useEffect, useState } from "react";
 import { apiClient } from "app-api/api";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import { toast } from "react-toastify";
+import { ImageInputComponent } from "@components/control/ImageInputComponent";
 
 interface viewPropsI {
   etablissement?: EtablissementInterface;
@@ -34,7 +35,13 @@ interface FormValues {
 
 interface viewState {
   villes: VilleInterface[];
-  base64Image: any;
+  logoB64: any;
+  cachetRespoB64: any;
+  signatureRespoB64: any;
+  
+  logoB64Name: string | null;
+  signatureRespoB64Name: string |null;
+  cachetRespoB64Name: string | null;
 }
 
 interface viewState {
@@ -48,7 +55,12 @@ const AddUpdateEtablissement: React.FC<viewPropsI> = ({
 }) => {
   const [state, setState] = useState<viewState>({
     villes: [],
-    base64Image: etablissement?.imageBase64,
+    logoB64: etablissement?.imageBase64,
+    cachetRespoB64: etablissement?.cachetimageBase64,
+    signatureRespoB64: etablissement?.signatureRespoImageBase64,
+    signatureRespoB64Name:null,
+    cachetRespoB64Name:null,
+    logoB64Name:null,
   });
 
   const validateSchema = Yup.object().shape({
@@ -71,6 +83,8 @@ const AddUpdateEtablissement: React.FC<viewPropsI> = ({
       numeroTelBis: etablissement?.numeroTelBis || "",
       villeEtab: etablissement?.villeEtablissement.id || 1,
       logoEtab: etablissement?.logoEtablissement || null,
+      cachet: etablissement?.cachet || null,
+      signatureRespo: etablissement?.signatureRespo || null,
       adresse: etablissement?.adresse || "",
       anneeScolaire: etablissement?.anneeScolaire || "",
     },
@@ -86,7 +100,9 @@ const AddUpdateEtablissement: React.FC<viewPropsI> = ({
         villeEtablissement: state.villes.filter(
           (item) => item.id == values.villeEtab
         )[0],
-        imageBase64: state.base64Image,
+        imageBase64: state.logoB64,
+        cachetimageBase64: state.cachetRespoB64,
+        signatureRespoImageBase64: state.signatureRespoB64,
         anneeScolaire: values.anneeScolaire,
       };
 
@@ -131,11 +147,12 @@ const AddUpdateEtablissement: React.FC<viewPropsI> = ({
         base64 = base64.replace(/^data:image\/[a-z]+;base64,/, "");
         setState((prevState) => ({
           ...prevState,
-          base64Image: base64,
+          [event.target.name]: base64,
+          [event.target.name+'Name']:file ? file.name : null
         }));
       };
     }
-    setFileName(file ? file.name : null);
+
   };
 
   return (
@@ -209,36 +226,28 @@ const AddUpdateEtablissement: React.FC<viewPropsI> = ({
               helperText={formik.touched.adresse && formik.errors.adresse}
             />
 
-            <Box className="border-solid ">
-              <Button
-                variant="contained"
-                component="label"
-                endIcon={true}
-                className="bg-transparent hover:bg-blue-500 text-back font-semibold hover:text-white hover:border-transparent w-72 mt-4"
-              >
-                Ajouter Logo&nbsp;
-                <input
-                  type="file"
-                  hidden
-                  accept={"image/*"}
-                  onChange={handleFileChange}
-                />
-                <CloudUploadIcon />
-              </Button>
 
-              {fileName && (
-                <>
-                  <br />
-                  <Typography
-                    variant="caption"
-                    display="block"
-                    style={{ marginTop: "10px" }}
-                  >
-                    {fileName}
-                  </Typography>
-                </>
-              )}
-            </Box>
+            <ImageInputComponent 
+            fileName={state.logoB64Name!}
+            handleFileChange={handleFileChange}
+            label="Ajouter le logo"
+            name="logoB64"
+            accept="image/*"/>
+
+            <ImageInputComponent 
+            fileName={state.cachetRespoB64Name!}
+            handleFileChange={handleFileChange}
+            label="Ajouter le cachet"
+            name="cachetRespoB64"
+            accept="image/*"/>
+
+            <ImageInputComponent 
+            fileName={state.signatureRespoB64Name!}
+            handleFileChange={handleFileChange}
+            label="Ajouter la signature"
+            name="signatureRespoB64"
+            accept="image/*"/>
+
           </Grid>
         </DialogContent>
         <DialogActions>

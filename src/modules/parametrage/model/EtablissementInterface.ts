@@ -11,4 +11,8 @@ imageBase64?:string,
 villeEtablissement : VilleInterface,
 adresse : string;
 anneeScolaire: string;
+signatureRespo?: string;
+cachet?: string;
+signatureRespoImageBase64?: string;
+cachetimageBase64?: string;
 }

@@ -1,5 +1,6 @@
 import { lazy, ReactNode } from "react";
 import { Navigation } from "./Navigation";
+import { Constante } from "@utils/Constantes";
 const Home  = lazy(() =>import("../Home"));
 const EtablissementReadView  = lazy(() =>import("../modules/parametrage/ui/EtablissementReadView"));
 const CycleEtudeReadView  = lazy(() =>import("../modules/parametrage/ui/CycleEtudeReadView"));
@@ -9,6 +10,7 @@ const EffectifReadView = lazy(()=>import("../modules/GestionEffectif/ui/Effectif
 const MainDashboard  = lazy(() =>import("../modules/dashboard/MainDashboard"));
 const ImportationView = lazy(()=>import("@modules/GestionEffectif/ui/ImportationView"));
 const Login  = lazy(() =>import("../modules/general/Login"));
+const AddUser = lazy(()=> import("@modules/users/ui/AddUpdateUser"));
 
 
 interface routeI {
@@ -26,7 +28,12 @@ export const routes: routeI[] = [
     {
         referenceModule: 0,
         path: "/login",
-        component: localStorage.getItem("connectedToken")? Login : Login
+        component: Login
+    },
+    {
+        referenceModule: 0,
+        path: Navigation.NEW_USER,
+        component: AddUser,
     },
     {
     referenceModule: 0,

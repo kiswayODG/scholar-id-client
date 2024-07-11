@@ -12,7 +12,8 @@ import Settings from '@mui/icons-material/Settings';
 import Logout from '@mui/icons-material/Logout';
 import { useState } from 'react';
 import { Navigation } from 'appConfigs/Navigation';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { Constante } from '@utils/Constantes';
 
 export  const AccountMenu : React.FC=()=> {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -23,6 +24,7 @@ export  const AccountMenu : React.FC=()=> {
   const handleClose = () => {
     setAnchorEl(null);
   };
+  const navigate = useNavigate();
   return (
     <React.Fragment>
       <Box sx={{ display: 'flex', alignItems: 'center', textAlign: 'center' }}>
@@ -76,31 +78,17 @@ export  const AccountMenu : React.FC=()=> {
         anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
       >
         <MenuItem >
-          <Avatar /> Profile
-        </MenuItem>
-        <MenuItem >
-          <Avatar /> My account
+          <Avatar /> Mon compte
         </MenuItem>
          <Divider />
-        <MenuItem >
-          <ListItemIcon>
-            <PersonAdd fontSize="small" />
-          </ListItemIcon>
-          Add another account
-        </MenuItem>
-        <MenuItem >
-          <ListItemIcon>
-            <Settings fontSize="small" />
-          </ListItemIcon>
-          Settings
-        </MenuItem>
-        <MenuItem>
-          <Link to={Navigation.LOGIN}>
+        <MenuItem onClick={()=>{
+            localStorage.clear();
+            navigate(Navigation.LOGIN);
+          }}>
           <ListItemIcon>
             <Logout fontSize="small" />
           </ListItemIcon>
-          Logout
-          </Link>
+          Se déconnecter
         </MenuItem> 
       </Menu>
     </React.Fragment>

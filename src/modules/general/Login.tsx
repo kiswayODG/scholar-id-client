@@ -72,7 +72,7 @@ export default function Login() {
         .userLogin(user)  
         .then((res) => {
           let result = res.data as AuthenticationResponse;
-          alert("ici")
+          
           if (result.logged == true) {
             setToken(result.token);
             setUserConnected(result.user);
@@ -190,7 +190,7 @@ export default function Login() {
                 </Grid>
 
                 <Grid item>
-                  <Link href="#" variant="body2">
+                  <Link href={Navigation.NEW_USER} variant="body2">
                     {"Nouveau compte"}
                   </Link>
                 </Grid>

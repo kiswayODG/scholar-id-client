@@ -7,7 +7,7 @@ import BadgeIcon from "@mui/icons-material/Badge";
 import CoPresentIcon from "@mui/icons-material/CoPresent";
 import { EtudiantInterface } from "../model/EtudiantInterface";
 import { ClasseInterface } from "@modules/parametrage/model/ClasseInterface";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { apiClient } from "app-api/api";
 import useModal from "../../../hooks/useModal";
 import FormDialog from "@components/modals/FormDialogComponent";
@@ -18,7 +18,12 @@ import { toast } from "react-toastify";
 import ConfirmComponent from "@components/modals/ConfirmComponent";
 import { ListItem } from "@mui/material";
 import { NiveauEtudeInterface } from "@modules/parametrage/model/NiveauInterface";
-import { Download, Inbox, InboxOutlined, InputRounded } from "@mui/icons-material";
+import {
+  Download,
+  Inbox,
+  InboxOutlined,
+  InputRounded,
+} from "@mui/icons-material";
 import { Navigation } from "@appConfigs/Navigation";
 
 interface viewStateI {
@@ -29,6 +34,11 @@ interface viewStateI {
   rowToDelete: EtudiantInterface | undefined;
   sexeFilter: string;
   classFilter: number;
+}
+
+interface ButtonStateI {
+  allprint: boolean;
+  printUniqueCard: boolean;
 }
 
 const EffectifReadView: React.FC = () => {
@@ -80,6 +90,11 @@ const EffectifReadView: React.FC = () => {
     niveauEtude: {} as NiveauEtudeInterface,
   };
 
+  const [loading, setLoading] = useState<ButtonStateI>({
+    allprint: false,
+    printUniqueCard: false,
+  });
+
   const filterComponent = () => {
     return (
       <>
@@ -116,7 +131,6 @@ const EffectifReadView: React.FC = () => {
         />
         &nbsp;
         <Controls.OnActionButton
-        
           type="button"
           onAction={() => {
             handleAddEtudiant();
@@ -126,6 +140,8 @@ const EffectifReadView: React.FC = () => {
         />
         &nbsp;
         <Controls.OnActionButton
+          loading={loading.allprint}
+          disabled={loading.allprint}
           type="button"
           onAction={() => handlePrintGlobal(state.filteredData)}
           titre="Générer"
@@ -136,7 +152,6 @@ const EffectifReadView: React.FC = () => {
           href={Navigation.IMPORTATION_DATA}
           titre="Importer"
           icon={<Download />}
-          
         />
       </>
     );
@@ -200,6 +215,10 @@ const EffectifReadView: React.FC = () => {
   };
 
   const handlePrint = async (etudiant: EtudiantInterface) => {
+    setLoading((prevState) => ({
+      ...prevState,
+      printUniqueCard: true,
+    }));
     let buffer: ArrayBuffer = new ArrayBuffer(0);
     await apiClient.effectifs
       .printUniqueCard(etudiant?.id!)
@@ -212,6 +231,10 @@ const EffectifReadView: React.FC = () => {
         type: "application/pdf",
       });
       const fileUrl = URL.createObjectURL(blob);
+      setLoading((prevState) => ({
+        ...prevState,
+        printUniqueCard: false,
+      }));
       window.open(fileUrl, "_blank");
     } else {
       toast.success("Fichier introuvable ou supprimé!");
@@ -219,6 +242,10 @@ const EffectifReadView: React.FC = () => {
   };
 
   const handlePrintGlobal = async (etudiants: EtudiantInterface[]) => {
+    setLoading((prevState) => ({
+      ...prevState,
+      allprint: true,
+    }));
     let buffer: ArrayBuffer = new ArrayBuffer(0);
 
     await apiClient.effectifs
@@ -232,6 +259,10 @@ const EffectifReadView: React.FC = () => {
         type: "application/pdf",
       });
       const fileUrl = URL.createObjectURL(blob);
+      setLoading((prevState)=>({
+        ...prevState,
+        allprint:false
+      }));
       window.open(fileUrl, "_blank");
     } else {
       toast.success("Fichier introuvable ou supprimé!");
@@ -282,6 +313,8 @@ const EffectifReadView: React.FC = () => {
           onAction={() => handleUpdateStudent(params.row)}
         />,
         <TableActions.printRowCardAction
+          loading={loading.printUniqueCard}
+          disable={loading.printUniqueCard}
           onAction={() => handlePrint(params.row)}
         />,
         <TableActions.deleteAction

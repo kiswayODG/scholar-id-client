@@ -1,4 +1,4 @@
-import { IconButton } from "@mui/material";
+import { CircularProgress, IconButton } from "@mui/material";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import React from "react";
 import { Delete, Info } from "@mui/icons-material";
@@ -9,6 +9,7 @@ interface buttonInterface {
   toolTip?: string;
   disable?: boolean;
   onAction: (T?: any) => void;
+  loading?: boolean;
 }
 
 const updateAction: React.FC<buttonInterface> = ({
@@ -69,6 +70,7 @@ const printRowCardAction: React.FC<buttonInterface> = ({
   toolTip,
   disable,
   onAction,
+  loading=false,
 }) => {
   return (
     <IconButton
@@ -78,6 +80,10 @@ const printRowCardAction: React.FC<buttonInterface> = ({
       onClick={onAction}
       size="small"
     >
+       {loading && (<CircularProgress
+        size={30}
+        style={{position:"absolute", color:"white"}}/>)
+        }
       <BadgeIcon />
     </IconButton>
   );

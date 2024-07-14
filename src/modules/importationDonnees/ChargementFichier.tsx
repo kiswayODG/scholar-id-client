@@ -25,6 +25,9 @@ import levenshtein from "js-levenshtein";
 import { ClasseInterface } from "@modules/parametrage/model/ClasseInterface";
 import { convertExcelDateToJSDate, parseDate } from "@utils/Utils";
 import { useNavigate } from "react-router-dom";
+import { Check, Height } from "@mui/icons-material";
+import NavigateNext from "@mui/icons-material/NavigateNext";
+import PhotoSelection from "./etapes/PhotoSelection";
 
 interface viewStateI {
   fileSheet: File | null;
@@ -36,14 +39,22 @@ interface viewStateI {
 }
 const fields: { key: keyof EtudiantInterface; label: string }[] = [
   { key: "matricule", label: "Matricule" },
-  { key: "parent", label: "Parent" },
-  { key: "parentbis", label: "Parent Bis" },
-  { key: "etablissement", label: "Etablissement" },
+  { key: "nom", label: "Nom" },
+  { key: "prenom", label: "Prénom" },
+  { key: "telephone", label: "Tel. urgence" },
+  { key: "prenom", label: "Prénom" },
+  { key: "adresse", label: "Adresse" },
+  { key: "dateNaissance", label: "Date naiss." },
+  { key: "lieuNaiss", label: "Lieu naiss." },
+  { key: "sexe", label: "Sexe(Masculin ou Feminin)" },
   { key: "classe", label: "Classe" },
-  { key: "imageBase64", label: "Image" },
-  { key: "deleteFlag", label: "Delete Flag" },
 ];
-const steps = ["Selection fichier", "Choix entete", "correspondance col"];
+const steps = [
+  "Selection fichier",
+  "Choix entete",
+  "correspondance col",
+  "Selection photos",
+];
 
 const ChargementFichier: React.FC = () => {
   const [activeStep, setActiveStep] = useState(0);
@@ -164,8 +175,37 @@ const ChargementFichier: React.FC = () => {
 
   const navigate = useNavigate();
 
-  const handleFinish = async () => {
-    let studentsTosend = etudiantsImport.map( (item) => {
+  const handleFolderChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const imageExtensions = /\.(jpg|jpeg|png|gif|bmp|webp|tiff)$/i;
+
+    const files = event.target.files;
+    if (!files) return;
+
+    Array.from(files).forEach((file) => {
+      if (imageExtensions.test(file.name)) {
+        const matricule = file.name.split(".")[0];
+
+        const studentIndex = etudiantsImport.findIndex(
+          (student) => student.matricule === matricule
+        );
+
+        if (studentIndex !== -1) {
+          const updatedStudents = [...etudiants];
+
+          const reader = new FileReader();
+          reader.onloadend = () => {
+            updatedStudents[studentIndex].imageBase64 =
+              reader.result?.toString().split(",")[1] || "";
+            setEtudiants(updatedStudents); // Update state with the updated students array
+          };
+          reader.readAsDataURL(file);
+        }
+      }
+    });
+  };
+
+  const handleFinishMappingData = () => {
+    let studentsTosend = etudiantsImport.map((item) => {
       const closestCity = findClosestCity(item.lieuNaiss, state.villes);
       const closestClass = findClosestClass(item.classe, state.classes);
 
@@ -180,7 +220,12 @@ const ChargementFichier: React.FC = () => {
             : item.sexe.toLowerCase().includes("m")
             ? "Masculin"
             : "Feminin",
-        dateNaissance: convertExcelDateToJSDate(Number(item.dateNaissance))!=null? convertExcelDateToJSDate(Number(item.dateNaissance))!.toISOString().split("T")[0]:"",
+        dateNaissance:
+          convertExcelDateToJSDate(Number(item.dateNaissance)) != null
+            ? convertExcelDateToJSDate(Number(item.dateNaissance))!
+                .toISOString()
+                .split("T")[0]
+            : "",
         lieuNaiss: closestCity,
         matricule: item.matricule,
         adresse: item.adresse,
@@ -192,20 +237,25 @@ const ChargementFichier: React.FC = () => {
       return etudiant;
     });
 
-    await apiClient.effectifs.createMultipleStudent(studentsTosend)
-      .then((res)=>{
-        if(res.data==true){
-          toast.success("Importation réalisée avec succès !");
-        }else{
-          toast.error("Une erreur s'est produite lors de l'opération");
-        }
-      }).catch((error)=> {
-        console.log(error);
-      })
-
-      navigate(Navigation.EFFECTIF);
+    setEtudiants(studentsTosend);
   };
 
+  const handleFinish = async () => {
+    await apiClient.effectifs
+      .createMultipleStudent(etudiants)
+      .then((res) => {
+        if (res.data == true) {
+          toast.success("Importation réalisée avec succès !");
+        } else {
+          toast.error("Une erreur s'est produite lors de l'opération");
+        }
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+
+    navigate(Navigation.EFFECTIF);
+  };
 
   const valider = () => {
     setState((prevState) => ({
@@ -223,6 +273,15 @@ const ChargementFichier: React.FC = () => {
   };
 
   const handleNext = () => {
+    if (activeStep == 0 && state.fileSheet == null) {
+      toast.warning(
+        "Veuillez bien choisir un fichier de données, avant de poursuivre !"
+      );
+      return;
+    }
+
+    if (activeStep === steps.length - 1) handleFinishMappingData();
+
     let newSkipped = skipped;
     if (isStepSkipped(activeStep)) {
       newSkipped = new Set(newSkipped.values());
@@ -268,7 +327,7 @@ const ChargementFichier: React.FC = () => {
   };
 
   return (
-    <Box sx={{ width: "100%" }}>
+    <Box sx={{ width: "100%" }} className="mt-6">
       <Stepper activeStep={activeStep}>
         {steps.map((label, index) => {
           const stepProps: { completed?: boolean } = {};
@@ -286,7 +345,7 @@ const ChargementFichier: React.FC = () => {
       {activeStep === steps.length ? (
         <React.Fragment>
           <Typography sx={{ mt: 2, mb: 1 }}>
-            All steps completed - you&apos;re finished
+            Toutes les étapes ont été complétées!
           </Typography>
           <Box sx={{ display: "flex", flexDirection: "row", pt: 2 }}>
             <Box sx={{ flex: "1 1 auto" }} />
@@ -297,7 +356,7 @@ const ChargementFichier: React.FC = () => {
         <React.Fragment>
           {activeStep == 0 ? (
             <Grid sx={{ marginX: "5rem" }}>
-              <Typography className="text-center">
+              <Typography className="text-center text-xl text-green-600 mt-4 mb-1">
                 Il est souhaitable d'avoir un fichier excel de la forme
               </Typography>
 
@@ -318,6 +377,7 @@ const ChargementFichier: React.FC = () => {
               <DropzoneArea
                 acceptedFiles={[".xlsx", ".xls"]}
                 showFileNames
+                dropzoneText="Veuillez charger un fichier excel ici !"
                 onChange={onDrop}
               />
             </Grid>
@@ -335,11 +395,14 @@ const ChargementFichier: React.FC = () => {
               onCreateEtudiants={handleCreateEtudiants}
               validate={valider}
             />
-          ) : (
-            ""
-          )}
+          ) : activeStep == 3 ? (
+            <PhotoSelection handleFolderChange={handleFolderChange} />
+          ) : null}
 
-          <Box sx={{ display: "flex", flexDirection: "row", pt: 2 }}>
+          <Box
+            sx={{ pt: 2 }}
+            className="flex  justify-between mx-4 self-end mt-auto"
+          >
             {/* <Button
               color="inherit"
               disabled={activeStep === 0}
@@ -348,21 +411,43 @@ const ChargementFichier: React.FC = () => {
             >
               Back
             </Button> */}
+
             <Controls.CancelButton
-              sx={{ margin: 2 }}
               startIcon={<CloseIcon />}
               title="Annuler"
               href={Navigation.EFFECTIF}
             />
 
-            <Box sx={{ flex: "1 1 auto" }} />
 
-            {activeStep !== steps.length - 1 ? (
-              <Button onClick={handleNext}>
-                {activeStep === steps.length - 1 ? "Finish" : "Next"}
-              </Button>
+
+            {activeStep !== steps.length - 1 &&
+            activeStep !== steps.length - 2 ? (
+              <Controls.OnActionButton
+                onAction={handleNext}
+                titre={activeStep === steps.length - 1 ? "Terminer" : "Suivant"}
+                type="button"
+                iconEnd={
+                  activeStep === steps.length - 1 ? <Check /> : <NavigateNext />
+                }
+                style={{ height: "35px" }}
+              />
+            ) : state.save && activeStep == steps.length - 2 ? (
+              <Controls.OnActionButton
+                onAction={handleNext}
+                titre={activeStep === steps.length - 1 ? "Terminer" : "Suivant"}
+                type="button"
+                iconEnd={
+                  activeStep === steps.length - 1 ? <Check /> : <NavigateNext />
+                }
+                style={{ height: "35px" }}
+              />
             ) : state.save && activeStep === steps.length - 1 ? (
-              <Button onClick={handleFinish}>Finir</Button>
+              <Controls.OnActionButton
+                onAction={handleFinish}
+                iconEnd={<Check />}
+                titre={"Terminer"}
+                type="button"
+              />
             ) : null}
           </Box>
         </React.Fragment>

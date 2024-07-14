@@ -1,4 +1,4 @@
-import { Button, IconButton } from "@mui/material";
+import { Button, CircularProgress, IconButton } from "@mui/material";
 import { ReactNode } from "react";
 import AddCircleOutlinedIcon from "@mui/icons-material/AddCircleOutlined";
 import PrintOutlinedIcon from "@mui/icons-material/PrintOutlined";
@@ -84,12 +84,14 @@ export const SubmitButton=(props: CancelButtonProps)=> {
     type : "button" |"submit"
     onAction?: (T?: any) => void;
     icon?: ReactNode;
+    iconEnd?: ReactNode;
     [key: string]: any;
     style?:any;
     useTheme?: boolean;
     href?:string;
+    loading?: boolean;
   }
-  export function OnActionButton({titre,onAction,icon,style,useTheme,type,href,...rest}: onActionButtonProps) {
+  export function OnActionButton({titre,onAction, loading=false,icon,style,useTheme,type,iconEnd,href,...rest}: onActionButtonProps) {
   
   
     return (
@@ -101,6 +103,7 @@ export const SubmitButton=(props: CancelButtonProps)=> {
         variant="contained"
         {...rest}
         startIcon={icon}
+        endIcon={iconEnd}
         sx={style}
         style={{
           
@@ -110,6 +113,11 @@ export const SubmitButton=(props: CancelButtonProps)=> {
         href={href}
       >
         {titre || "Valider"}
+        {loading && (<CircularProgress
+        size={30}
+        
+        style={{position:"absolute", color:"white"}}/>)
+        }
       </Button>
     );
   }

@@ -95,10 +95,11 @@ const ChargementFichier: React.FC = () => {
     sheetData: any[][],
     mappings: { [key: string]: string }
   ) => {
-    console.log(sheetData);
+    
+    const newSheet = sheetData.filter((item)=>item.length>0)
     if (!sheetData.length) return [];
 
-    const newEtudiants = sheetData.slice(state.headLine + 1).map((row) => {
+    const newEtudiants = newSheet.slice(state.headLine + 1).map((row) => {
       const etudiant: EtudiantImportationInterface = {
         nom: "",
         matricule: "",
@@ -132,9 +133,8 @@ const ChargementFichier: React.FC = () => {
       return etudiant;
     });
 
-    console.log(newEtudiants);
     setEtudiantImport(newEtudiants);
-
+    handleFinishMappingData(newEtudiants);
     return newEtudiants;
   };
   const findClosestCity = (
@@ -185,17 +185,18 @@ const ChargementFichier: React.FC = () => {
       if (imageExtensions.test(file.name)) {
         const matricule = file.name.split(".")[0];
 
-        const studentIndex = etudiantsImport.findIndex(
+        const studentIndex = etudiants.findIndex(
           (student) => student.matricule === matricule
         );
 
         if (studentIndex !== -1) {
           const updatedStudents = [...etudiants];
-
           const reader = new FileReader();
           reader.onloadend = () => {
-            updatedStudents[studentIndex].imageBase64 =
+
+            updatedStudents[studentIndex].imageBase64! =
               reader.result?.toString().split(",")[1] || "";
+
             setEtudiants(updatedStudents); // Update state with the updated students array
           };
           reader.readAsDataURL(file);
@@ -204,8 +205,10 @@ const ChargementFichier: React.FC = () => {
     });
   };
 
-  const handleFinishMappingData = () => {
-    let studentsTosend = etudiantsImport.map((item) => {
+  const handleFinishMappingData = (etudiant:EtudiantImportationInterface[]) => {
+
+    
+    let studentsTosend = etudiant.map((item) => {
       const closestCity = findClosestCity(item.lieuNaiss, state.villes);
       const closestClass = findClosestClass(item.classe, state.classes);
 
@@ -280,7 +283,7 @@ const ChargementFichier: React.FC = () => {
       return;
     }
 
-    if (activeStep === steps.length - 1) handleFinishMappingData();
+    //if (activeStep === steps.length - 1) handleFinishMappingData(etu);
 
     let newSkipped = skipped;
     if (isStepSkipped(activeStep)) {
@@ -354,54 +357,56 @@ const ChargementFichier: React.FC = () => {
         </React.Fragment>
       ) : (
         <React.Fragment>
-          {activeStep == 0 ? (
-            <Grid sx={{ marginX: "5rem" }}>
-              <Typography className="text-center text-xl text-green-600 mt-4 mb-1">
-                Il est souhaitable d'avoir un fichier excel de la forme
-              </Typography>
+          <Box sx={{ flex: 1 }}>
+            {activeStep == 0 ? (
+              <Grid sx={{ marginX: "5rem" }}>
+                <Typography className="text-center text-xl text-green-600 mt-4 mb-1">
+                  Il est souhaitable d'avoir un fichier excel de la forme
+                </Typography>
 
-              <div className="border-t border-l border-r border-solid border-black flex">
-                {fields.map((field, index) => (
-                  <div
-                    key={field.key as string}
-                    className={`flex-1 flex items-center justify-center ${
-                      index < fields.length - 1
-                        ? "border-r border-solid border-black"
-                        : ""
-                    }`}
-                  >
-                    <span className="text-center">{field.label}</span>
-                  </div>
-                ))}
-              </div>
-              <DropzoneArea
-                acceptedFiles={[".xlsx", ".xls"]}
-                showFileNames
-                dropzoneText="Veuillez charger un fichier excel ici !"
-                onChange={onDrop}
+                <div className="border-t border-l border-r border-solid border-black flex">
+                  {fields.map((field, index) => (
+                    <div
+                      key={field.key as string}
+                      className={`flex-1 flex items-center justify-center ${
+                        index < fields.length - 1
+                          ? "border-r border-solid border-black"
+                          : ""
+                      }`}
+                    >
+                      <span className="text-center">{field.label}</span>
+                    </div>
+                  ))}
+                </div>
+                <DropzoneArea
+                  acceptedFiles={[".xlsx", ".xls"]}
+                  showFileNames
+                  dropzoneText="Veuillez charger un fichier excel ici !"
+                  onChange={onDrop}
+                />
+              </Grid>
+            ) : activeStep == 1 ? (
+              <ChoixEnTete
+                fichier={state.fileSheet!}
+                onHeadlineChange={handleHeadlineChange}
+                onSheetnameChange={handleSheetnameChange}
               />
-            </Grid>
-          ) : activeStep == 1 ? (
-            <ChoixEnTete
-              fichier={state.fileSheet!}
-              onHeadlineChange={handleHeadlineChange}
-              onSheetnameChange={handleSheetnameChange}
-            />
-          ) : activeStep == 2 ? (
-            <MappageColonne
-              fichier={state.fileSheet!}
-              headLine={state.headLine}
-              sheetname={state.sheetnameSelected}
-              onCreateEtudiants={handleCreateEtudiants}
-              validate={valider}
-            />
-          ) : activeStep == 3 ? (
-            <PhotoSelection handleFolderChange={handleFolderChange} />
-          ) : null}
+            ) : activeStep == 2 ? (
+              <MappageColonne
+                fichier={state.fileSheet!}
+                headLine={state.headLine}
+                sheetname={state.sheetnameSelected}
+                onCreateEtudiants={handleCreateEtudiants}
+                validate={valider}
+              />
+            ) : activeStep == 3 ? (
+              <PhotoSelection handleFolderChange={handleFolderChange} />
+            ) : null}
+          </Box>
 
           <Box
             sx={{ pt: 2 }}
-            className="flex  justify-between mx-4 self-end mt-auto"
+            className="flex  justify-between mx-4 mt-auto"
           >
             {/* <Button
               color="inherit"
@@ -417,8 +422,6 @@ const ChargementFichier: React.FC = () => {
               title="Annuler"
               href={Navigation.EFFECTIF}
             />
-
-
 
             {activeStep !== steps.length - 1 &&
             activeStep !== steps.length - 2 ? (

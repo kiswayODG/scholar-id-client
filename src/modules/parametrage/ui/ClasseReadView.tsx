@@ -16,77 +16,114 @@ import { Box, CircularProgress } from "@mui/material";
 import ConfirmComponent from "@components/modals/ConfirmComponent";
 import { HttpStatusCode } from "axios";
 import { toast } from "react-toastify";
+import { ParametreGlobalInterface } from "../model/ParametreGlobalInterface";
+import { EtablissementInterface } from "../model/EtablissementInterface";
+import { ConstanteParamGlob } from "@utils/Constantes";
 
 interface viewStateI {
-  data : ClasseInterface[],
-  filteredData : ClasseInterface[],
-  niveauxListe : NiveauEtudeInterface[],
-  currentModel: ClasseInterface | undefined,
-  updaddOp: string,
-  rowToDelete:  ClasseInterface | undefined,
-  loading: boolean,
+  data: ClasseInterface[];
+  filteredData: ClasseInterface[];
+  niveauxListe: NiveauEtudeInterface[];
+  cycleList: ParametreGlobalInterface[];
+  currentModel: ClasseInterface | undefined;
+  updaddOp: string;
+  rowToDelete: ClasseInterface | undefined;
+  loading: boolean;
+  filteredCycleSelected: number;
+  filteredNiveauSelected: number;
 }
 
 const ClasseReadView: React.FC = () => {
-
-  const[state, setState] = useState<viewStateI>({
-    data : [],
-    filteredData : [],
-    niveauxListe : [],
+  const [state, setState] = useState<viewStateI>({
+    data: [],
+    filteredData: [],
+    niveauxListe: [],
+    cycleList:[],
     currentModel: {} as ClasseInterface,
-    updaddOp:"",
+    updaddOp: "",
     loading: true,
-    rowToDelete : undefined,
-  })
+    rowToDelete: undefined,
+    filteredCycleSelected: 0,
+    filteredNiveauSelected: 0,
+  });
 
-const fetchtableData = async()=> {
-  await apiClient.parametrage.fetchClasses()
-  .then((res)=>{
-    setState((prevState)=>({
-      ...prevState,
-      data : res.data as ClasseInterface[],
-      filteredData : res.data as ClasseInterface[],
-      loading: false,
-    }))
-  })
-}
+  const fetchtableData = async () => {
+    const niveauReqResponse = await apiClient.parametrage.fetchNiveaux();
+    const cycleReqResponse = await apiClient.parametrage.fetchParamByCode(ConstanteParamGlob.PARAMG_CYCLE_ETUDE);
+
+    await apiClient.parametrage.fetchClasses().then((res) => {
+      setState((prevState) => ({
+        ...prevState,
+        data: res.data as ClasseInterface[],
+        filteredData: res.data as ClasseInterface[],
+        niveauxListe: niveauReqResponse.data as NiveauEtudeInterface[],
+        cycleList: cycleReqResponse.data as ParametreGlobalInterface[],
+        loading: false,
+      }));
+    });
+  };
+
+  const defaultCycle: ParametreGlobalInterface = {
+    codeParam: "",
+    id: 0,
+    libelleCourt: "",
+    libelleParam: "Cycle d'étude",
+    paramEtab: {} as EtablissementInterface,
+  };
+
+  const defaultNiveau: NiveauEtudeInterface = {
+    codeNiveauEtude: "",
+    cycleEtude: {} as ParametreGlobalInterface,
+    etablissement: {} as EtablissementInterface,
+    id: 0,
+    libelleCourt: "",
+    libelleNiveauEtude: "Niveau d'étude",
+  };
 
   const addClassModal = useModal();
 
   const handleAddClasse = () => {
-    setState((prevState)=>({
+    setState((prevState) => ({
       ...prevState,
       currentModel: undefined,
-      updaddOp:"Nouvelle classe"
-    }))
+      updaddOp: "Nouvelle classe",
+    }));
     addClassModal.toggle();
   };
-
-
 
   const filterComponent = () => {
     return (
       <>
         <Controls.SelectComponent
-          onChange={() => {}}
-          options={[]}
-          renderLabel={() => ""}
-          renderValue={() => ""}
-          valeur={""}
-          width={200}
+          onChange={(newValue) => {
+            setState((prevState)=>({
+              ...prevState,
+              filteredNiveauSelected: newValue
+            }))
+          }}
+          options={[defaultNiveau, ...state.niveauxListe]}
+          renderLabel={item => item.libelleNiveauEtude}
+          renderValue={item => item.id}
+          valeur={state.filteredNiveauSelected}
+          width={160}
         />{" "}
         &nbsp;
         <Controls.SelectComponent
-          onChange={() => {}}
-          options={[]}
-          renderLabel={() => ""}
-          renderValue={() => ""}
-          valeur={""}
-          width={200}
+          onChange={(newValue) => {
+            setState((prevState)=>({
+              ...prevState,
+              filteredCycleSelected: newValue
+            }))
+          }}
+          options={[defaultCycle, ...state.cycleList]}
+          renderLabel={item => item.libelleParam}
+          renderValue={item => item.id}
+          valeur={state.filteredCycleSelected}
+          width={150}
         />
         &nbsp;
         <Controls.OnActionButton
-        type="button"
+          type="button"
           onAction={handleAddClasse}
           titre="Classe"
           icon={<AddCircleOutlined />}
@@ -95,14 +132,38 @@ const fetchtableData = async()=> {
     );
   };
 
-  const handleUpdateClasse = (model: ClasseInterface)=> {
+  useEffect(()=>{
+    let newDataFiltered = state.data.filter((item)=>{
+      let cycleBool = false;
+      let niveauBool = false;
+
+      if(state.filteredCycleSelected==0)
+        cycleBool=true;
+      else 
+        cycleBool= item.niveauEtude.cycleEtude.id==state.filteredCycleSelected
+
+        if(state.filteredNiveauSelected == 0)
+          niveauBool=true;
+        else
+        niveauBool= item.niveauEtude.id==state.filteredNiveauSelected
+      
+        return cycleBool&&niveauBool;
+    })
+
     setState((prevState)=>({
+      ...prevState,
+      filteredData:newDataFiltered
+    }))
+  },[state.filteredCycleSelected,state.filteredNiveauSelected])
+
+  const handleUpdateClasse = (model: ClasseInterface) => {
+    setState((prevState) => ({
       ...prevState,
       currentModel: model,
       updaddOp: "Edition classe",
-    }))
+    }));
     addClassModal.toggle();
-  }
+  };
 
   const confirmDeleteModal = useModal();
 
@@ -118,15 +179,16 @@ const fetchtableData = async()=> {
     await apiClient.parametrage
       .deleteClasse(model.id)
       .then((r) => {
-        if(r.status==HttpStatusCode.Ok) {
-        toast.success("Niveau supprimé avec succès !");
-        fetchtableData();
-      }
-      if(r.status==HttpStatusCode.Conflict)
-        toast.warning("Ce cycle contient des niveau, suppression impossible !");
+        if (r.status == HttpStatusCode.Ok) {
+          toast.success("Niveau supprimé avec succès !");
+          fetchtableData();
+        }
+        if (r.status == HttpStatusCode.Conflict)
+          toast.warning(
+            "Ce cycle contient des niveau, suppression impossible !"
+          );
       })
       .catch((error) => {
-      
         toast.error("Erreur lors de la suppession!");
       });
   };
@@ -150,22 +212,29 @@ const fetchtableData = async()=> {
       valueGetter: (param) => param.row.niveauEtude.libelleNiveauEtude,
     },
     {
+      field: "cycle",
+      headerName: "Cycle",
+      valueGetter: (params) => params.row.niveauEtude.cycleEtude.libelleParam,
+    },
+    {
       field: "actions",
       headerName: "Action(s)",
       type: "actions",
       width: 150,
       getActions: (params) => [
         <TableActions.detailAction onAction={() => {}} />,
-        <TableActions.updateAction onAction={()=>handleUpdateClasse(params.row)} />,
-        <TableActions.deleteAction onAction={() => handleWarningDelete(params.row)} />,
-       
+        <TableActions.updateAction
+          onAction={() => handleUpdateClasse(params.row)}
+        />,
+        <TableActions.deleteAction
+          onAction={() => handleWarningDelete(params.row)}
+        />,
       ],
     },
-
   ];
-  useEffect(()=>{
+  useEffect(() => {
     fetchtableData();
-  },[])
+  }, []);
 
   return (
     <>
@@ -177,19 +246,24 @@ const fetchtableData = async()=> {
             {" "}
             <CircularProgress />{" "}
           </Box>
-        ) :<TableComponent
-          columns={column}
-          rows={state.filteredData}
-          toolBarChildren={filterComponent()}
-        />}
+        ) : (
+          <TableComponent
+            columns={column}
+            rows={state.filteredData}
+            toolBarChildren={filterComponent()}
+          />
+        )}
         <FormDialog
           isOpen={addClassModal.isOpen}
           onClose={addClassModal.toggle}
           title={state.updaddOp}
         >
-          <AddUpdateClasse reload={fetchtableData} onClose={addClassModal.toggle} classe={state.currentModel}/>
+          <AddUpdateClasse
+            reload={fetchtableData}
+            onClose={addClassModal.toggle}
+            classe={state.currentModel}
+          />
         </FormDialog>
-
         <ConfirmComponent
           isOpen={confirmDeleteModal.isOpen}
           title={"Attention!!!"}

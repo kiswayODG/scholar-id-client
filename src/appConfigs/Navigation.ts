@@ -10,5 +10,6 @@ export const Navigation = {
     LOGIN : "/login",
     SUBSCRIBING : "nouvel-abonnement",
     FREEMIUM : "compte-gratuit",
-    NEW_USER: "/new-user"
+    NEW_USER: "/new-user",
+    INITIAL_ETAB_ADD:"/init-etab-add"
   } as const;

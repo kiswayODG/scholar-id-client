@@ -10,12 +10,16 @@ interface ImageInputProps {
   accept: string;
   label: string;
   name: string;
+  fullwidth?:boolean;
+  [key: string]: any;
 }
 
-export const ImageInputComponent = (props: ImageInputProps) => {
+export const ImageInputComponent: React.FC<ImageInputProps> = 
+({fileName,width,accept,handleFileChange,label,name,fullwidth,...rest }) => {
+  
   const [imagePreview, setImagePreview] = useState<string | null>(null);
 
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChangeEx = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
 
     if (file) {
@@ -28,7 +32,7 @@ export const ImageInputComponent = (props: ImageInputProps) => {
       setImagePreview(null);
     }
 
-    props.handleFileChange(event);
+    handleFileChange(event);
   };
 
   return (
@@ -37,19 +41,20 @@ export const ImageInputComponent = (props: ImageInputProps) => {
         variant="contained"
         component="label"
         endIcon={<CloudUploadIcon />}
-        className="bg-transparent hover:bg-blue-500 text-back font-semibold hover:text-white hover:border-transparent w-72 mt-4"
+        className={fullwidth?"bg-transparent hover:bg-blue-500 text-back font-semibold hover:text-white hover:border-transparent w-full mt-4":
+          "bg-transparent hover:bg-blue-500 text-back font-semibold hover:text-white hover:border-transparent w-72 mt-4"} 
       >
-        {props.label}&nbsp;
+        {label}&nbsp;
         <input
           type="file"
           hidden
-          accept={props.accept}
-          name={props.name}
+          accept={accept}
+          name={name}
           onChange={handleFileChange}
         />
       </Button>
 
-      {props.fileName && (
+      {fileName && (
         <>
           <br />
           <Typography
@@ -57,7 +62,7 @@ export const ImageInputComponent = (props: ImageInputProps) => {
             display="block"
             style={{ marginTop: "10px" }}
           >
-            {props.fileName}
+            {fileName}
           </Typography>
         </>
       )}

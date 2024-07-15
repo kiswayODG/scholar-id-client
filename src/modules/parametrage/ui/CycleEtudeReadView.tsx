@@ -16,12 +16,13 @@ import { TableActions } from "@components/TableAction/TableActions";
 import { HttpStatusCode } from "axios";
 import { toast } from "react-toastify";
 import ConfirmComponent from "@components/modals/ConfirmComponent";
+import DetailView from "../components/DetailView";
 
 interface viewStateI {
   data: ParametreGlobalInterface[];
   filteredData: ParametreGlobalInterface[];
   addUpdateOperation: string;
-  currentCycle: ParametreGlobalInterface;
+  currentCycle: ParametreGlobalInterface | undefined;
   rowToDelete : ParametreGlobalInterface | undefined;
   loading: boolean;
 }
@@ -33,7 +34,7 @@ const CycleEtudeReadView: React.FC = () => {
     rowToDelete: undefined,
     loading: true,
     addUpdateOperation: "",
-    currentCycle: {} as ParametreGlobalInterface,
+    currentCycle: undefined,
   });
 
   const fetchData = () => {
@@ -130,13 +131,20 @@ const CycleEtudeReadView: React.FC = () => {
       type: "actions",
       width: 150,
       getActions: (params) => [
-        <TableActions.detailAction onAction={() => {}} />,
+        <TableActions.detailAction onAction={() => handleDisplayDetialCycle(params.row)} />,
         <TableActions.updateAction onAction={()=>handleUpdateCycle(params.row)} />,
         <TableActions.deleteAction onAction={() => handleWarningDelete(params.row)} />,
        
       ],
     },
   ];
+
+  const handleDisplayDetialCycle = (cycle: ParametreGlobalInterface) => {
+    setState((prevState)=>({
+      ...prevState,
+      currentCycle:cycle
+    }))
+  }
 
   const handleUpdateCycle = (cycle: ParametreGlobalInterface) => {
     setState((prevState) => ({
@@ -149,24 +157,27 @@ const CycleEtudeReadView: React.FC = () => {
   return (
     <>
       <Layout>
+        Cycle
         {state.loading ? (
           <Box className="flex justify-center items-center h-screen">
             {" "}
             <CircularProgress />{" "}
           </Box>
         ) : (
-          <Grid container spacing={0} style={{ height: "100%" }}>
-            <Grid item xs={6}>
-              Cycle
-              <div className="bg-green-500 w-full"></div>
+          <Grid container spacing={2}>
+             <Grid item xs={7.5}>
+              
               <TableComponent
                 columns={column}
                 rows={state.filteredData}
                 toolBarChildren={filterComponent()}
               />
             </Grid>
-            <Grid item xs={6}>
-              <Paper className="h-full mx-6">Droite</Paper>
+            <Grid item xs={4}>
+            <Paper className="h-5/6 flex items-center justify-center mt-12">
+                {/* <DetailView model={state.currentCycle}/> */}
+                Vue détail
+              </Paper>
             </Grid>
           </Grid>
         )}

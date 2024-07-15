@@ -47,7 +47,7 @@ interface SelectProps<T> {
         value={selectedValue+''}
         onChange={handleSelectChange}
         className={"select-component "+{className}}
-        style={{ width: width?width:200 }}
+        style={{ width: width || className?.includes('w')?width:200 }}
         sx={{
           ".MuiSvgIcon-root ": {
             fill: colors.primary[100] + "!important",

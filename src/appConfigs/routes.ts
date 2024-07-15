@@ -11,6 +11,7 @@ const MainDashboard  = lazy(() =>import("../modules/dashboard/MainDashboard"));
 const ImportationView = lazy(()=>import("@modules/GestionEffectif/ui/ImportationView"));
 const Login  = lazy(() =>import("../modules/general/Login"));
 const AddUser = lazy(()=> import("@modules/users/ui/AddUpdateUser"));
+const InitETABView = lazy(()=> import("@modules/parametrage/ui/InitialAddEtablissement"));
 
 
 interface routeI {
@@ -34,6 +35,11 @@ export const routes: routeI[] = [
         referenceModule: 0,
         path: Navigation.NEW_USER,
         component: AddUser,
+    },
+    {
+        referenceModule: 0,
+        path: Navigation.INITIAL_ETAB_ADD,
+        component: InitETABView,
     },
     {
     referenceModule: 0,

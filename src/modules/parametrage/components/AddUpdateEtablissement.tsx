@@ -4,17 +4,14 @@ import {
   DialogActions,
   DialogContent,
   Grid,
-  TextField,
-  Typography,
 } from "@mui/material";
 import { EtablissementInterface } from "../model/EtablissementInterface";
 import { VilleInterface } from "../model/VilleInterface";
-import { Field, useFormik } from "formik";
+import { useFormik } from "formik";
 import * as Yup from "yup";
 import Controls from "@components/controls";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { apiClient } from "app-api/api";
-import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import { toast } from "react-toastify";
 import { ImageInputComponent } from "@components/control/ImageInputComponent";
 

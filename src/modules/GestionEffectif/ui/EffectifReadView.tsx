@@ -113,7 +113,7 @@ const EffectifReadView: React.FC = () => {
           renderLabel={(item) => item.libelle}
           renderValue={(item) => item.valeur}
           valeur={state.sexeFilter}
-          width={150}
+          width={130}
         />{" "}
         &nbsp;
         <Controls.SelectComponent
@@ -127,7 +127,7 @@ const EffectifReadView: React.FC = () => {
           renderLabel={(item) => item.libelleClasse}
           renderValue={(item) => item.id}
           valeur={state.classFilter}
-          width={150}
+          width={130}
         />
         &nbsp;
         <Controls.OnActionButton
@@ -231,14 +231,15 @@ const EffectifReadView: React.FC = () => {
         type: "application/pdf",
       });
       const fileUrl = URL.createObjectURL(blob);
-      setLoading((prevState) => ({
-        ...prevState,
-        printUniqueCard: false,
-      }));
+
       window.open(fileUrl, "_blank");
     } else {
-      toast.success("Fichier introuvable ou supprimé!");
+      toast.warning("Impression impossible, pas d'élève !");
     }
+    setLoading((prevState) => ({
+      ...prevState,
+      printUniqueCard: false,
+    }));
   };
 
   const handlePrintGlobal = async (etudiants: EtudiantInterface[]) => {
@@ -259,14 +260,15 @@ const EffectifReadView: React.FC = () => {
         type: "application/pdf",
       });
       const fileUrl = URL.createObjectURL(blob);
-      setLoading((prevState)=>({
-        ...prevState,
-        allprint:false
-      }));
+
       window.open(fileUrl, "_blank");
     } else {
-      toast.success("Fichier introuvable ou supprimé!");
+      toast.warning("Impression impossible, pas d'élève !");
     }
+    setLoading((prevState) => ({
+      ...prevState,
+      allprint: false,
+    }));
   };
 
   const column: GridColDef<EtudiantInterface>[] = [
@@ -327,7 +329,7 @@ const EffectifReadView: React.FC = () => {
   return (
     <>
       <Layout>
-        Effectif
+        
         <div className="bg-green-500 w-full"></div>
         <TableComponent
           columns={column}

@@ -57,6 +57,7 @@ const MappageColonne: React.FC<ViewProps> = ({
         const jsonData: any[] = XLSX.utils.sheet_to_json(worksheet, {
           header: 1,
         });
+
         setDonnees(XLSX.utils.sheet_to_json(worksheet, { header: 1 }));
 
         setSheetData(jsonData[headLine]);

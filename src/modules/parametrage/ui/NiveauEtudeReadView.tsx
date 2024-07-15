@@ -17,6 +17,7 @@ import { TableActions } from "@components/TableAction/TableActions";
 import ConfirmComponent from "@components/modals/ConfirmComponent";
 import { toast } from "react-toastify";
 import { HttpStatusCode } from "axios";
+import { EtablissementInterface } from "../model/EtablissementInterface";
 
 interface viewStateI {
   data: NiveauEtudeInterface[];
@@ -26,6 +27,7 @@ interface viewStateI {
   currentRow: NiveauEtudeInterface | undefined;
   rowToDelete: NiveauEtudeInterface | undefined;
   loading: boolean;
+  filteredCycleSelected: number,
 }
 const NiveauEtudeReadView: React.FC = () => {
   const addUpdateNiveauModal = useModal();
@@ -38,6 +40,7 @@ const NiveauEtudeReadView: React.FC = () => {
     loading: true,
     currentRow: undefined,
     rowToDelete: undefined,
+    filteredCycleSelected:0,
   });
 
   const [activeDetail, setDetail] = useState<boolean>(false);
@@ -55,6 +58,13 @@ const NiveauEtudeReadView: React.FC = () => {
       filteredData: niveauReqResponse.data as NiveauEtudeInterface[],
       loading: false,
     }));
+  };
+  const defaultCycle: ParametreGlobalInterface = {
+    codeParam: ConstanteParamGlob.PARAMG_CYCLE_ETUDE,
+    id: 0,
+    libelleCourt: "",
+    libelleParam: "Cycle d'étude",
+    paramEtab: {} as EtablissementInterface,
   };
   const handleAddNiveau = () => {
     setState((prevState) => ({
@@ -74,16 +84,38 @@ const NiveauEtudeReadView: React.FC = () => {
     addUpdateNiveauModal.toggle();
   };
 
+  useEffect(()=>{
+    let newDataFiltered = state.data.filter((item)=>{
+      let cycleBool = false;
+      if(state.filteredCycleSelected==0)
+        cycleBool=true;
+      else 
+        cycleBool= item.cycleEtude.id==state.filteredCycleSelected
+      
+        return cycleBool;
+    })
+
+    setState((prevState)=>({
+      ...prevState,
+      filteredData:newDataFiltered
+    }))
+  },[state.filteredCycleSelected])
+
   const filterComponent = () => {
     return (
       <>
         <Controls.SelectComponent
-          onChange={() => {}}
-          options={[]}
-          renderLabel={() => ""}
-          renderValue={() => ""}
-          valeur={""}
-          width={200}
+          onChange={(newValue) => {
+            setState((prevState)=>({
+              ...prevState,
+              filteredCycleSelected:newValue
+            }))
+          }}
+          options={[defaultCycle,...state.cycleList]}
+          renderLabel={(item) => item.libelleParam}
+          renderValue={(item) => item.id}
+          valeur={state.filteredCycleSelected}
+          width={150}
         />{" "}
         &nbsp;
         <Controls.OnActionButton
@@ -110,20 +142,21 @@ const NiveauEtudeReadView: React.FC = () => {
     await apiClient.parametrage
       .deleteNiveau(model.id)
       .then((r) => {
-        if(r.status==HttpStatusCode.Ok) {
-        toast.success("Niveau supprimé avec succès !");
-        getData();
-      }
-      if(r.status==HttpStatusCode.Conflict)
-        toast.warning("Ce niveau contient des classes, suppression impossible !");
+        if (r.status == HttpStatusCode.Ok) {
+          toast.success("Niveau supprimé avec succès !");
+          getData();
+        }
+        if (r.status == HttpStatusCode.Conflict)
+          toast.warning(
+            "Ce niveau contient des classes, suppression impossible !"
+          );
       })
       .catch((error) => {
-      
         toast.error("Erreur lors de la suppession!");
       });
   };
 
-  const column: GridColDef[] = [
+  const column: GridColDef<NiveauEtudeInterface>[] = [
     {
       field: "id",
       headerName: "ID",
@@ -135,6 +168,13 @@ const NiveauEtudeReadView: React.FC = () => {
     {
       field: "codeNiveauEtude",
       headerName: "Code",
+    },
+    {
+      field: "cycle",
+      headerName: "Cycle",
+      valueGetter:(params) =>
+        params.row.cycleEtude.libelleParam
+      ,
     },
     {
       field: "actions",
@@ -160,6 +200,7 @@ const NiveauEtudeReadView: React.FC = () => {
   return (
     <>
       <Layout>
+        Niveau
         <Grid container spacing={2}>
           <Grid item xs={7.5}>
             {state.loading ? (
@@ -177,11 +218,10 @@ const NiveauEtudeReadView: React.FC = () => {
           </Grid>
           <Grid item xs={4}>
             <Paper className="h-5/6 flex items-center justify-center mt-12">
-              Detail view
+              Vue détail
             </Paper>
           </Grid>
         </Grid>
-
         <FormDialog
           isOpen={addUpdateNiveauModal.isOpen}
           onClose={addUpdateNiveauModal.toggle}
@@ -193,7 +233,6 @@ const NiveauEtudeReadView: React.FC = () => {
             reload={getData}
           />
         </FormDialog>
-
         <ConfirmComponent
           isOpen={confirmDeleteModal.isOpen}
           title={"Attention!!!"}

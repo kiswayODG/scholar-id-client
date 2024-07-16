@@ -1,9 +1,11 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Section } from "./Section";
 import { Button, Menu, MenuItem } from "@mui/material";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AccountMenu } from "./AccountMenu";
 import { Navigation } from "../../appConfigs/Navigation";
+import { apiClient } from "app-api/api";
+import { EtablissementInterface } from "@modules/parametrage/model/EtablissementInterface";
 
 export const Header = () => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -15,29 +17,53 @@ export const Header = () => {
     setAnchorEl(null);
   };
 
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [etab, setEtab] = useState<EtablissementInterface|null>(null);
+
+  useEffect(() => {
+    apiClient.parametrage
+      .fetchActiveEtablissement()
+      .then((res) => {
+        if (res.data != null) 
+          setEtab(res.data as EtablissementInterface);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }, []);
+
+
+  
   return (
-    <header className="sticky top-0 backdrop-blur-xl z-50 py-4 bg-blue-950 text-white">
+    <header className="sticky top-0 backdrop-blur-xl z-50 py-3 bg-blue-950 text-white">
       <Section className="flex items-baseline ">
-        <h1 className="text-lg font-bold text-primary">ScholarID</h1>
+        <h1 className="text-2xl font-bold text-primary">ScholarID</h1>
         <div className="flex-1" />
-        <ul className="flex items-center gap-2">
-          <Link to={Navigation.DASHBOARD} >
-            <Button className="text-white"> Vue Générale</Button>
+
+        {etab!=null? <ul className="flex items-center gap-2">
+          <Link to={Navigation.DASHBOARD} className={location.pathname == Navigation.DASHBOARD ? "border-2 border-white rounded-lg" : ""}>
+            <Button className="text-white text-lg"> Vue Générale</Button>
           </Link>
-          <Link to={Navigation.EFFECTIF} >
-            <Button className="text-white"> Mes effectifs</Button>
+          <Link to={Navigation.EFFECTIF} className={location.pathname.includes(Navigation.EFFECTIF) ? "border-2 border-white rounded-lg":""} >
+            <Button className="text-white text-lg"> Mes effectifs</Button>
           </Link>
           {/* <Button> <Link to={""}>Documents</Link></Button> */}
+          <div             
+          className={location.pathname.includes("parametrage") ?
+            "border-2 border-white rounded-lg": ""}>
+
           <Button
             id="basic-button"
             aria-controls={open ? "basic-menu" : undefined}
             aria-haspopup="true"
             aria-expanded={open ? "true" : undefined}
             onClick={handleClick}
-            className="text-white"
+            className="text-white text-lg "
           >
             Paramétrages
           </Button>
+          </div>
           <Menu
             id="basic-menu"
             anchorEl={anchorEl}
@@ -61,7 +87,8 @@ export const Header = () => {
             </Link>
           </Menu>
           <AccountMenu />
-        </ul>
+        </ul>:null}
+
       </Section>
     </header>
   );

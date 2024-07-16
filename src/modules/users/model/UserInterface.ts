@@ -11,6 +11,7 @@ export interface UserInterface {
     adresse? : string,
     telephone? : string,
     dateNaissance? : Date | string,
+    credit?: number;
 }
 
 

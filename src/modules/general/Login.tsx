@@ -9,6 +9,7 @@ import Grid from "@mui/material/Grid";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import Typography from "@mui/material/Typography";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
+import illustrationLogin from "@assets/images/illustration-login.jpg"
 import * as Yup from "yup";
 
 import { Navigation } from "appConfigs/Navigation";
@@ -21,6 +22,7 @@ import { apiClient } from "app-api/api";
 import { setToken, setUserConnected } from "utilities/Utils";
 import { Navigate, useNavigate } from "react-router";
 import { Form, useFormik } from "formik";
+import { LoginIllustrationSVG } from "@components/icons/LoginIllustrationSVG";
 
 function Copyright(props: any) {
   return (
@@ -109,8 +111,7 @@ export default function Login() {
           md={7}
           className="bg-blue-200 w-16"
           sx={{
-            backgroundImage:
-              "url(https://source.unsplash.com/random?wallpapers)",
+            backgroundImage: `url(${illustrationLogin})`,
             backgroundRepeat: "no-repeat",
             backgroundColor: (t) =>
               t.palette.mode === "light"
@@ -130,8 +131,8 @@ export default function Login() {
               alignItems: "center",
             }}
           >
-            <Avatar sx={{ m: 1, bgcolor: "secondary.main" }}>
-              <LockOutlinedIcon />
+            <Avatar sx={{ m: 1, bgcolor: "none",  width: 70, height: 70 }} >
+              <LoginIllustrationSVG size={60}/>
             </Avatar>
             <Typography component="h1" variant="h5">
               Connexion

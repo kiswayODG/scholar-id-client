@@ -25,7 +25,8 @@
       "@modules/*" : ["modules/*"],
       "@utils/*" : ["utilities/*"],
       "@appConfigs/*" : ["appConfigs/*"],
-      "@hooks/*" : ["hooks/*"]
+      "@hooks/*" : ["hooks/*"],
+      "@assets/*" : ["assets/*"]
 
     }
   },

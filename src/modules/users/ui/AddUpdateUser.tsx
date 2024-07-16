@@ -80,6 +80,7 @@ const AddUpdateUser: React.FC<viewPropsI> = ({ user, onCancel }) => {
         .createUser(userToregister)
         .then((res) => {
           if (res.status == HttpStatusCode.Ok) {
+            toast.success("Compte crée avec succès!")
             navigate("/login");
           }
         })

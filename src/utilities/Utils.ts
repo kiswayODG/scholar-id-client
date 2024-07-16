@@ -48,6 +48,34 @@ export const parseDate = (dateString: string): Date | null => {
  * @returns La date JavaScript correspondante.
  */
 export const convertExcelDateToJSDate = (excelDate: number): Date => {
-    return new Date(Math.round((excelDate - 25569)*86400*1000));
+    return new Date(Math.round((excelDate - 25569) * 86400 * 1000));
 };
 
+
+export const GlobalDebug = (function () {
+    var savedConsole = console;
+    /**
+    * @param {boolean} debugOn
+    * @param {boolean} suppressAll
+    */
+    return function (debugOn: any, suppressAll?: any) {
+        var suppress = suppressAll || false;
+        if (debugOn === false) {
+            // supress the default console functionality
+            console = {} as any;
+            console.log = function () { };
+            // supress all type of consoles
+            if (suppress) {
+                console.info = function () { };
+                console.warn = function () { };
+                console.error = function () { };
+            } else {
+                console.info = savedConsole.info;
+                console.warn = savedConsole.warn;
+                console.error = savedConsole.error;
+            }
+        } else {
+            console = savedConsole;
+        }
+    };
+})();

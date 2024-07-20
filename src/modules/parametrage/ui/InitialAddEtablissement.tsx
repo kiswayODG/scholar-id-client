@@ -166,17 +166,23 @@ const InitialAddEtablissement: React.FC = () => {
         </Box>
       ) : (
         <Layout>
-          <Typography className="text-center mt-4 text-lg">
+          <Box>
+            <h1 className="text-center text-2xl font-extrabold pt-8">
+              Votre établissement !
+            </h1>
+          </Box>
+          <Typography className="text-center mt-1 text-md">
             Veuillez renseigner les informations de votre établissement pour
             continuer !
           </Typography>
           <form className="" onSubmit={formik.handleSubmit}>
             <DialogContent>
+              <div>
               <Grid
-                className="flex justify-between flex-row space-x-4"
-                style={{ height: "68vh" }}
-              >
-                <Paper className="flex flex-1 flex-col space-y-8  p-2">
+                className="flex flex-col justify-between  lg:flex-row lg:space-x-4 space-y-4"
+               
+              > <div></div>
+                <Paper className="flex flex-1 flex-col space-y-8  p-2 ">
                   <Controls.TextFieldComponent
                     label="Année scolaire *"
                     name="anneeScolaire"
@@ -234,7 +240,7 @@ const InitialAddEtablissement: React.FC = () => {
                     }
                   />
                 </Paper>
-                <Paper className="flex flex-col  pt-4 flex-1 space-y-6  p-2">
+                <Paper className="flex flex-1 flex-col space-y-8  p-2">
                   <Controls.SelectComponent
                     name="villeEtab"
                     onChange={(option) =>
@@ -269,16 +275,16 @@ const InitialAddEtablissement: React.FC = () => {
                   />
                   {state?.logoB64 && (
                     <img
-                      className=" max-w-32 max-h-32 w-auto h-auto m-auto"
+                      className=" max-w-28 max-h-28 w-auto h-auto m-auto"
                       src={`data:image/png;base64,${state?.logoB64}`}
                     />
                   )}
                   {!state?.logoB64 && (
-                    <div className=" w-32 h-32 m-auto border-2 bg-white" />
+                    <div className=" w-28 h-28 m-auto border-2 bg-white" />
                   )}
                 </Paper>
 
-                <Paper className="flex flex-col  flex-1 space-y-2  p-2">
+                <Paper  className="flex flex-1 flex-col space-y-2  p-2 pb-8">
                   <ImageInputComponent
                     fileName={state.cachetRespoB64Name!}
                     handleFileChange={handleFileChange}
@@ -290,13 +296,13 @@ const InitialAddEtablissement: React.FC = () => {
 
                   {state?.cachetRespoB64 && (
                     <img
-                      className=" max-w-28 max-h-28 w-auto h-auto m-auto"
+                      className=" max-w-28 max-h-28 w-auto m-auto"
                       src={`data:image/png;base64,${state?.cachetRespoB64}`}
                     />
                   )}
 
                   {!state?.cachetRespoB64 && (
-                    <div className=" max-w-32 max-h-32 w-auto h-auto m-auto">
+                    <div className=" max-w-28 max-h-28 m-auto">
                       <CachetIcon size={120} />
                     </div>
                   )}
@@ -311,25 +317,28 @@ const InitialAddEtablissement: React.FC = () => {
                   />
                   {state?.signatureRespoB64 && (
                     <img
-                      className=" max-w-32 max-h-32 w-auto h-auto m-auto"
+                      className=" max-w-28 max-h-28 m-auto"
                       src={`data:image/png;base64,${state?.signatureRespoB64}`}
                     />
                   )}
 
                   {!state?.signatureRespoB64 && (
-                    <div className=" max-w-32 max-h-32 w-auto h-auto m-auto">
+                    <div className=" max-w-28 max-h-28 m-auto">
                       <SignatureSVG size={120} />
                     </div>
                   )}
                 </Paper>
-              </Grid>
-            </DialogContent>
-            <DialogActions className="flex justify-center">
-              <Controls.OnActionButton
+                <div></div>
+                </Grid>
+                <Controls.OnActionButton
                 type="submit"
                 titre="Valider"
-                className="w-64"
+                className=" md:flex md:justify-center md:m-auto md:mt-4 w-full md:w-64"
               />
+              </div>
+            </DialogContent>
+            <DialogActions className="">
+             
             </DialogActions>
           </form>
         </Layout>

@@ -3,8 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@coreui/coreui": "^4.3.2",
-    "@coreui/react": "^4.11.1",
+    "@coreui/coreui": "^4.0.0",
+    "@coreui/react": "^4.0.0",
     "@craco/craco": "^7.1.0",
     "@emotion/react": "^11.11.0",
     "@emotion/styled": "^11.11.0",

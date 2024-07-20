@@ -6,7 +6,7 @@ import Link from "@mui/material/Link";
 import Paper from "@mui/material/Paper";
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
-import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
+import CircularProgress from "@mui/material/CircularProgress"; // Ajoutez cette ligne
 import Typography from "@mui/material/Typography";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import illustrationLogin from "@assets/images/illustration-login.jpg"
@@ -56,6 +56,7 @@ export default function Login() {
     username: Yup.string().required("Veuillez renseigner un username"),
     password: Yup.string().required("veuillez renseigner un mot de passe"),
   });
+  const [loading, setLoading] = useState(false);
 
   const formik = useFormik({
     initialValues: {
@@ -65,6 +66,7 @@ export default function Login() {
     validationSchema: validateSchema,
 
     async onSubmit(values, formikHelpers) {
+      setLoading(true);
       let user: UserInterface = {
         username: values.username,
         password: values.password,
@@ -74,7 +76,7 @@ export default function Login() {
         .userLogin(user)  
         .then((res) => {
           let result = res.data as AuthenticationResponse;
-          
+          alert(JSON.stringify(result))
           if (result.logged == true) {
             setToken(result.token);
             setUserConnected(result.user);
@@ -87,7 +89,8 @@ export default function Login() {
             return;
           }
         })
-        .catch((error) => console.log(error));
+        .catch((error) => console.log(error))
+        .finally(() => setLoading(false));
      },
   });
 
@@ -177,11 +180,10 @@ export default function Login() {
                   type="submit"
                   fullWidth
                   variant="contained"
-                  onClick={()=>{formik.handleSubmit()}}
                   sx={{ mt: 3, mb: 2 }}
-                  // href={Navigation.DASHBOARD}
+                   href={Navigation.DASHBOARD}
                 >
-                  Se connecter
+                  {loading ? <CircularProgress size={24} /> : "Se connecter"}
                 </Button>
               <Grid container>
                 <Grid item xs>

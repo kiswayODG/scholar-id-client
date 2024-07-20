@@ -20,8 +20,8 @@ useEffect(() => {
   return (
    <>
     <Routes>
-      {routes.map((item) => {
-        return <Route path={item.path} element={<item.component />}/>;
+      {routes.map((item,index) => {
+        return <Route key={index}  path={item.path} element={<item.component />}/>;
       })}
     </Routes>
     <ToastContainer autoClose={8000} />

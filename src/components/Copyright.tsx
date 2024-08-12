@@ -5,11 +5,11 @@ export default function Copyright(props: any) {
     return (
         <>
       <Typography variant="body2" color="text.secondary" align="center" {...props}>
-        {'Copyright © '}
+        {'Tout droit reservé - Propriété intellectuelle ©  '}
         <Link color="inherit" href="https://mui.com/">
-          DimDigital
+          +226 64058021/51852064
         </Link>{' '}
-        {new Date().getFullYear()}
+       
         {'.'}
       </Typography>
       </>

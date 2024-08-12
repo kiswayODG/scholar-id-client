@@ -6,7 +6,7 @@ import Link from "@mui/material/Link";
 import Paper from "@mui/material/Paper";
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
-import CircularProgress from "@mui/material/CircularProgress"; // Ajoutez cette ligne
+import { CircularProgress } from "@mui/material";
 import Typography from "@mui/material/Typography";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import illustrationLogin from "@assets/images/illustration-login.jpg"
@@ -182,20 +182,10 @@ export default function Login() {
                   variant="contained"
                   sx={{ mt: 3, mb: 2 }}
                 >
-                  {loading ? <CircularProgress size={24} /> : "Se connecter"}
+                  {loading ? <CircularProgress size={24} className="text-white" /> : "Se connecter"}
                 </Button>
               <Grid container>
-                <Grid item xs>
-                  <Link href="#" variant="body2">
-                    Mot de passe oublié?
-                  </Link>
-                </Grid>
-
-                <Grid item>
-                  <Link href={Navigation.NEW_USER} variant="body2">
-                    {"Nouveau compte"}
-                  </Link>
-                </Grid>
+               
               </Grid>
               <Copyright sx={{ mt: 5 }} />
             </form>

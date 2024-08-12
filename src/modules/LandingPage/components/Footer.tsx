@@ -176,7 +176,7 @@ export default function Footer() {
             &nbsp;•&nbsp;
           </Typography>
           <Link color="text.secondary" href="#">
-            Standards
+            +226 64058021/51852064
           </Link>
           <Copyright />
         </div>
